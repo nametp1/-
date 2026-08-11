@@ -1,0 +1,1820 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>APP权限配置 - MySANY管理后台</title>
+  <style>
+    :root {
+      --primary: #C41E29;
+      --primary-hover: #A01822;
+      --primary-bg: rgba(196, 30, 41, 0.05);
+      --bg-page: #F5F6FA;
+      --bg-card: #FFFFFF;
+      --info: #1677FF;
+      --text-1: #1F1F1F;
+      --text-2: #5C6470;
+      --text-3: #9AA0AA;
+      --border: #E5E8ED;
+      --border-light: #EEF0F4;
+      --dark-bg: #1E2A4A;
+      --dark-bg-hover: #27375A;
+      --dark-active: #2E3F66;
+      --sidebar-w: 200px;
+      --header-h: 48px;
+      --row-hover: #F0F7FF;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: var(--bg-page);
+      color: var(--text-1);
+      font-size: 14px;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden
+    }
+
+    a {
+      color: var(--info);
+      text-decoration: none
+    }
+
+    a:hover {
+      text-decoration: underline
+    }
+
+    /* ========== 顶部 Header (已修复 Logo 重复 & 用户防溢出) ========== */
+    .topbar {
+      height: var(--header-h);
+      background: #0F1A36;
+      color: #FFF;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      font-size: 13px
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-shrink: 0
+    }
+
+    .brand {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: .5px;
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .brand svg {
+      flex-shrink: 0
+    }
+
+    .brand span:last-child {
+      font-weight: 400;
+      opacity: .85;
+      font-size: 12px;
+      margin-left: 2px
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      flex-shrink: 1
+    }
+
+    .topbar-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      color: #FFF;
+      font-size: 13px;
+      transition: background .15s;
+      white-space: nowrap;
+      flex-shrink: 0
+    }
+
+    .topbar-btn:hover {
+      background: rgba(255, 255, 255, .1)
+    }
+
+    .topbar-btn svg {
+      width: 14px;
+      height: 14px;
+      fill: none;
+      flex-shrink: 0
+    }
+
+    .topbar-sep {
+      width: 1px;
+      height: 16px;
+      background: rgba(255, 255, 255, .15);
+      flex-shrink: 0;
+      margin: 0 2px
+    }
+
+    /* 用户区域文本自适应防溢出 */
+    .topbar-user {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      min-width: 0;
+      flex-shrink: 1
+    }
+
+    .topbar-user:hover {
+      background: rgba(255, 255, 255, .1)
+    }
+
+    .topbar-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #FFB88C, #DE6262);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFF;
+      font-size: 11px;
+      font-weight: 600;
+      flex-shrink: 0
+    }
+
+    .topbar-user span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 110px
+    }
+
+    .topbar-user svg {
+      flex-shrink: 0
+    }
+
+    /* ========== Sidebar ========== */
+    .layout {
+      display: flex;
+      padding-top: var(--header-h);
+      min-height: 100vh
+    }
+
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--dark-bg);
+      color: #DCE0EB;
+      flex-shrink: 0;
+      height: calc(100vh - var(--header-h));
+      position: sticky;
+      top: var(--header-h);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 0
+    }
+
+    .menu-group {
+      margin-bottom: 4px
+    }
+
+    .menu-title {
+      padding: 10px 18px 6px;
+      font-size: 11px;
+      color: rgba(220, 224, 235, .45);
+      text-transform: uppercase;
+      letter-spacing: 1px
+    }
+
+    .menu-item {
+      padding: 8px 18px;
+      font-size: 13px;
+      color: rgba(220, 224, 235, .8);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all .15s;
+      border-left: 3px solid transparent
+    }
+
+    .menu-item:hover {
+      color: #FFF;
+      background: var(--dark-bg-hover)
+    }
+
+    .menu-item.active {
+      color: #FFF;
+      background: var(--dark-active);
+      border-left-color: var(--primary);
+      font-weight: 500
+    }
+
+    .menu-item .icon {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      opacity: .8
+    }
+
+    .menu-item .arrow {
+      margin-left: auto;
+      font-size: 10px;
+      opacity: .5
+    }
+
+    /* ========== 主内容 ========== */
+    .main {
+      flex: 1;
+      padding: 16px 20px;
+      min-width: 0;
+      background: var(--bg-page)
+    }
+
+    /* 面包屑 */
+    .breadcrumb {
+      padding: 10px 16px;
+      background: #FFF;
+      border-bottom: 1px solid var(--border);
+      border-radius: 6px 6px 0 0;
+      font-size: 13px;
+      color: var(--text-2);
+      display: flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .breadcrumb .home {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--text-2)
+    }
+
+    .breadcrumb .home svg {
+      width: 14px;
+      height: 14px
+    }
+
+    .breadcrumb .sep {
+      color: var(--text-3);
+      margin: 0 2px
+    }
+
+    .breadcrumb .current {
+      color: var(--text-1);
+      font-weight: 500
+    }
+
+    /* 内容卡片 */
+    .content {
+      background: #FFF;
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 6px 6px;
+      padding: 14px 16px;
+      position: relative;
+      overflow: hidden
+    }
+
+    .content-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px
+    }
+
+    /* ========== 按钮通用规则 ========== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 6px 16px;
+      font-size: 13px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all .15s;
+      font-family: inherit;
+      white-space: nowrap;
+      line-height: 1.4
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #FFF
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover)
+    }
+
+    .btn-outline {
+      background: #FFF;
+      border-color: var(--border);
+      color: var(--text-1)
+    }
+
+    .btn-outline:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-bg)
+    }
+
+    /* 表格 Grid 规范 */
+    .table-card {
+      border: 1px solid var(--border-light);
+      border-radius: 6px;
+      overflow: hidden;
+      background: #FFF
+    }
+
+    .table-grid {
+      display: grid;
+      grid-template-columns: 180px 1.5fr 1.5fr 90px 80px 80px 160px
+    }
+
+    .table-header {
+      background: #F0F4FA;
+      border-bottom: 1px solid var(--border-light);
+      font-size: 13px;
+      color: var(--text-1);
+      font-weight: 600
+    }
+
+    .table-header>div {
+      padding: 12px
+    }
+
+    .table-row {
+      border-bottom: 1px solid var(--border-light);
+      font-size: 13px;
+      align-items: center;
+      transition: background .15s
+    }
+
+    .table-row:last-child {
+      border-bottom: none
+    }
+
+    .table-row:hover {
+      background: var(--row-hover)
+    }
+
+    .table-row>div {
+      padding: 12px;
+      color: var(--text-1);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .expand-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-2);
+      cursor: pointer;
+      padding: 0;
+      width: 18px;
+      height: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 4px;
+      vertical-align: middle
+    }
+
+    .expand-btn svg {
+      width: 12px;
+      height: 12px;
+      transition: transform .2s ease
+    }
+
+    .expand-btn.expanded svg {
+      transform: rotate(90deg)
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 10px;
+      font-size: 12px
+    }
+
+    .tag-dir {
+      background: #E6F7FF;
+      border: 1px solid #91D5FF;
+      color: #1677FF
+    }
+
+    .tag-page {
+      background: #FFF7E6;
+      border: 1px solid #FFD591;
+      color: #FA8C16
+    }
+
+    .tag-btn {
+      background: #F6FFED;
+      border: 1px solid #B7EB8F;
+      color: #52C41A
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 12px
+    }
+
+    .actions a {
+      font-size: 13px;
+      cursor: pointer
+    }
+
+    /* 子菜单行 */
+    .sub-rows {
+      background: #FBFCFE
+    }
+
+    .sub-row {
+      border-bottom: 1px solid var(--border-light);
+      font-size: 13px;
+      align-items: center;
+      transition: background .15s
+    }
+
+    .sub-row:hover {
+      background: #F0F7FF
+    }
+
+    .sub-row>div {
+      padding: 10px 12px;
+      color: var(--text-1);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .sub-row .sub-name {
+      padding-left: 28px;
+      display: flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .sub-row .sub-name::before {
+      content: "";
+      width: 10px;
+      height: 1px;
+      background: #C0C7D1;
+      flex-shrink: 0
+    }
+
+    .sub-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #52C41A;
+      background: #F6FFED;
+      border: 1px solid #B7EB8F
+    }
+
+    .sub-row .btn-mini {
+      padding: 2px 8px;
+      font-size: 12px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: #FFF;
+      color: var(--text-2);
+      cursor: pointer;
+      transition: all .15s;
+      font-family: inherit
+    }
+
+    .sub-row .btn-mini:hover {
+      border-color: var(--primary);
+      color: var(--primary)
+    }
+
+    .sub-row .btn-mini.danger {
+      color: var(--primary);
+      border-color: rgba(196, 30, 41, .3)
+    }
+
+    .sub-row .btn-mini.danger:hover {
+      background: var(--primary-bg)
+    }
+
+    /* ========== 分页 ========== */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 14px 0 4px;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--text-2)
+    }
+
+    .pagination .total {
+      color: var(--text-2);
+      margin-right: auto
+    }
+
+    .page-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .page-btn {
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: #FFF;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-2);
+      transition: all .15s;
+      font-family: inherit;
+      font-size: 13px
+    }
+
+    .page-btn:hover:not(:disabled) {
+      border-color: var(--primary);
+      color: var(--primary)
+    }
+
+    .page-btn.active {
+      background: var(--primary);
+      color: #FFF;
+      border-color: var(--primary)
+    }
+
+    .page-btn:disabled {
+      opacity: .5;
+      cursor: not-allowed
+    }
+
+    .page-size {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--text-2);
+      cursor: pointer;
+      padding: 4px 8px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: #FFF
+    }
+
+    .page-size::after {
+      content: "";
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid var(--text-3)
+    }
+
+    /* ========== 弹窗组件 ========== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .45);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center
+    }
+
+    .modal-overlay.show {
+      display: flex
+    }
+
+    .modal {
+      background: #FFF;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .18);
+      width: 680px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-light)
+    }
+
+    .modal-header h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-1)
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-3);
+      font-size: 20px;
+      line-height: 1;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      transition: background .15s
+    }
+
+    .modal-close:hover {
+      color: var(--text-1);
+      background: var(--bg-page)
+    }
+
+    .modal-body {
+      padding: 18px 20px;
+      overflow-y: auto;
+      flex: 1
+    }
+
+    .field-label {
+      font-size: 13px;
+      color: var(--text-2);
+      margin-bottom: 8px;
+      font-weight: 500
+    }
+
+    .tenant-input-row {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .tenant-input-row input {
+      flex: 1;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 7px 12px;
+      font-size: 13px;
+      outline: none;
+      color: var(--text-1);
+      background: #FFF;
+      transition: border-color .15s
+    }
+
+    .tenant-input-row input:focus {
+      border-color: var(--primary)
+    }
+
+    .tenant-tips {
+      font-size: 12px;
+      color: var(--text-3);
+      margin: 14px 0 10px;
+      line-height: 1.6
+    }
+
+    .tenant-tips b {
+      font-weight: 600;
+      color: var(--text-2)
+    }
+
+    .tenant-tools {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px
+    }
+
+    .tenant-tool {
+      padding: 5px 14px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: #FFF;
+      font-size: 12px;
+      color: var(--text-2);
+      cursor: pointer;
+      transition: all .15s;
+      font-family: inherit
+    }
+
+    .tenant-tool:hover {
+      border-color: var(--primary);
+      color: var(--primary)
+    }
+
+    /* 权限类型 Tab */
+    .tenant-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border-light);
+      padding: 0 2px
+    }
+
+    .tenant-tab {
+      padding: 9px 22px;
+      font-size: 13px;
+      color: var(--text-2);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all .18s;
+      font-family: inherit;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none
+    }
+
+    .tenant-tab:hover {
+      color: var(--primary)
+    }
+
+    .tenant-tab.active {
+      color: var(--primary);
+      font-weight: 600;
+      border-bottom-color: var(--primary)
+    }
+
+    .tenant-panel {
+      display: none
+    }
+
+    .tenant-panel.show {
+      display: block
+    }
+
+    .tenant-tree {
+      border: 1px solid var(--border-light);
+      border-radius: 6px;
+      padding: 8px 12px;
+      max-height: 300px;
+      overflow-y: auto
+    }
+
+    .tree-group {
+      margin-bottom: 2px
+    }
+
+    .tnode {
+      display: flex;
+      align-items: center;
+      padding: 5px 6px;
+      margin: 1px 0;
+      font-size: 13px;
+      color: var(--text-1);
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background .12s;
+      user-select: none
+    }
+
+    .tnode:hover {
+      background: var(--primary-bg)
+    }
+
+    .tnode.level-0 {
+      font-weight: 500
+    }
+
+    .tnode.level-2 {
+      font-size: 12px;
+      color: var(--text-2);
+      padding-left: 24px
+    }
+
+    .tnode-arrow {
+      width: 16px;
+      height: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 2px;
+      flex-shrink: 0;
+      color: var(--text-3);
+      transition: transform .2s
+    }
+
+    .tnode-arrow.expanded {
+      transform: rotate(90deg)
+    }
+
+    .tnode-arrow.empty {
+      visibility: hidden
+    }
+
+    .tnode input[type="checkbox"] {
+      width: 14px;
+      height: 14px;
+      accent-color: var(--primary);
+      cursor: pointer;
+      margin-right: 8px;
+      flex-shrink: 0
+    }
+
+    .tnode-label {
+      flex: 1
+    }
+
+    .modal-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 12px 20px;
+      border-top: 1px solid var(--border-light);
+      background: #FAFAFA;
+      flex-shrink: 0
+    }
+
+    .modal-footer .btn {
+      min-width: 80px;
+      padding: 6px 20px;
+      height: 32px;
+      font-size: 13px
+    }
+
+    /* 选择租户列表弹窗 */
+    #picker-modal {
+      z-index: 300
+    }
+
+    .modal-picker {
+      width: 880px;
+      max-height: 80vh
+    }
+
+    .picker-search-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px
+    }
+
+    .picker-search {
+      flex: 1;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 7px 12px;
+      font-size: 13px;
+      outline: none;
+      color: var(--text-1);
+      background: #FFF;
+      transition: border-color .15s
+    }
+
+    .picker-search:focus {
+      border-color: var(--primary)
+    }
+
+    .btn-default {
+      background: #FFF;
+      border: 1px solid var(--border);
+      color: var(--text-2)
+    }
+
+    .btn-default:hover {
+      border-color: var(--primary);
+      color: var(--primary)
+    }
+
+    .picker-table {
+      border: 1px solid var(--border-light);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 12px
+    }
+
+    .picker-header {
+      display: grid;
+      grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr 1fr;
+      background: #FAFAFA;
+      border-bottom: 1px solid var(--border-light);
+      font-size: 13px;
+      color: var(--text-1);
+      font-weight: 600
+    }
+
+    .picker-header>div {
+      padding: 10px 12px
+    }
+
+    .picker-row {
+      display: grid;
+      grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr 1fr;
+      border-bottom: 1px solid var(--border-light);
+      font-size: 13px;
+      color: var(--text-1);
+      transition: background .15s
+    }
+
+    .picker-row:last-child {
+      border-bottom: none
+    }
+
+    .picker-row:hover {
+      background: #F0F7FF
+    }
+
+    .picker-row>div {
+      padding: 10px 12px;
+      color: var(--text-1)
+    }
+
+    .picker-row a {
+      font-size: 13px
+    }
+
+    .picker-pagination {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 8px 4px;
+      font-size: 13px;
+      color: var(--text-2)
+    }
+
+    .pg-btn {
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: #FFF;
+      font-size: 12px;
+      color: var(--text-2);
+      cursor: pointer;
+      transition: all .15s;
+      font-family: inherit
+    }
+
+    .pg-btn:hover:not(:disabled) {
+      border-color: var(--primary);
+      color: var(--primary)
+    }
+
+    .pg-btn.active {
+      background: var(--primary);
+      color: #FFF;
+      border-color: var(--primary)
+    }
+
+    .pg-btn:disabled {
+      opacity: .5;
+      cursor: not-allowed
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- 顶部 Header (结构清理与防溢出) -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="brand">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="#C41E29">
+          <path d="M12 2L2 7v10l10 5 10-5V7L12 2z" />
+          <path d="M12 2v20M2 7l10 5 10-5" stroke="#FFF" stroke-width="1.2" fill="none" />
+        </svg>
+        <span>SANY LINK</span><span>开发环境</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-btn">
+        <span>简体中文</span>
+        <svg viewBox="0 0 16 16">
+          <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" />
+        </svg>
+      </div>
+      <div class="topbar-btn">
+        <svg viewBox="0 0 16 16">
+          <circle cx="8" cy="8" r="6.5" fill="none" stroke="#FFF" stroke-width="1.2" />
+          <line x1="8" y1="5" x2="8" y2="10" stroke="#FFF" stroke-width="1.5" stroke-linecap="round" />
+          <circle cx="8" cy="12.5" r=".8" fill="#FFF" />
+        </svg>
+        <span>三一通讯</span>
+        <svg viewBox="0 0 16 16">
+          <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" />
+        </svg>
+      </div>
+      <div class="topbar-btn">
+        <svg viewBox="0 0 16 16">
+          <path d="M2 4h12v9H8l-3 3v-3H2z" fill="none" stroke="#FFF" stroke-width="1.2" stroke-linejoin="round" />
+        </svg>
+      </div>
+      <div class="topbar-sep"></div>
+      <div class="topbar-user" title="超级管理员">
+        <div class="topbar-avatar">超</div>
+        <span>超级管理员</span>
+        <svg viewBox="0 0 16 16" width="12" height="12">
+          <path d="M4 6l4 4 4-4" stroke="#FFF" stroke-width="1.2" fill="none" stroke-linecap="round" />
+        </svg>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <nav class="sidebar-nav">
+        <div class="menu-group">
+          <div class="menu-item"><svg class="icon" viewBox="0 0 16 16">
+              <path d="M2 4h12v9H8l-3 3v-3H2z" fill="none" stroke="currentColor" stroke-width="1.3"
+                stroke-linejoin="round" />
+            </svg>工作台<span class="arrow">›</span></div>
+          <div class="menu-item"><svg class="icon" viewBox="0 0 16 16">
+              <path d="M2 13V6l6-4 6 4v7H2zM6 13V9h4v4" fill="none" stroke="currentColor" stroke-width="1.3" />
+            </svg>组织架构<span class="arrow">›</span></div>
+          <div class="menu-item"><svg class="icon" viewBox="0 0 16 16">
+              <rect x="2" y="3" width="12" height="11" rx="1" fill="none" stroke="currentColor" stroke-width="1.3" />
+              <line x1="4" y1="6" x2="12" y2="6" stroke="currentColor" stroke-width="1.3" />
+            </svg>基础数据<span class="arrow">›</span></div>
+        </div>
+        <div class="menu-group">
+          <div class="menu-item"><svg class="icon" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.3" />
+              <path d="M8 4v4l3 2" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round" />
+            </svg>设备管理</div>
+          <div class="menu-item"><svg class="icon" viewBox="0 0 16 16">
+              <rect x="2" y="3" width="12" height="11" rx="1" fill="none" stroke="currentColor" stroke-width="1.3" />
+              <line x1="2" y1="7" x2="14" y2="7" stroke="currentColor" stroke-width="1.3" />
+              <line x1="5" y1="10" x2="7" y2="10" stroke="currentColor" stroke-width="1.3" />
+            </svg>数据管理</div>
+          <div class="menu-item"><svg class="icon" viewBox="0 0 16 16">
+              <path d="M2 4l6 4 6-4M2 4v8l6 4 6-4V4" fill="none" stroke="currentColor" stroke-width="1.3"
+                stroke-linejoin="round" />
+            </svg>租赁管理</div>
+          <div class="menu-item"><svg class="icon" viewBox="0 0 16 16">
+              <path d="M3 2h10v12H3zM5 5h6M5 8h6M5 11h4" fill="none" stroke="currentColor" stroke-width="1.3" />
+            </svg>约管理</div>
+        </div>
+        <div class="menu-group">
+          <div class="menu-item"><svg class="icon" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.3" />
+              <path d="M11 5L7 9l-2-2" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>积分商城管理</div>
+          <div class="menu-item"><svg class="icon" viewBox="0 0 16 16">
+              <path d="M2 8h12M8 2v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            </svg>运营活动管理</div>
+          <div class="menu-item"><svg class="icon" viewBox="0 0 16 16">
+              <rect x="2" y="3" width="12" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.3" />
+              <path d="M5 13v-2M11 13v-2" stroke="currentColor" stroke-width="1.3" />
+            </svg>设备运营管理</div>
+          <div class="menu-item active">
+            <svg class="icon" viewBox="0 0 16 16">
+              <rect x="2" y="3" width="12" height="10" rx="1" fill="none" stroke="#FFF" stroke-width="1.3" />
+              <line x1="2" y1="7" x2="14" y2="7" stroke="#FFF" stroke-width="1.3" />
+              <circle cx="5" cy="10" r="1" fill="#FFF" />
+              <circle cx="11" cy="10" r="1" fill="#FFF" />
+            </svg>
+            PC端管理<span class="arrow">›</span>
+          </div>
+        </div>
+        <div class="menu-group">
+          <div class="menu-item"><svg class="icon" viewBox="0 0 16 16">
+              <path d="M2 13l3-3 3 3 6-6" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>风险审计管理</div>
+          <div class="menu-item"><svg class="icon" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.3" />
+              <path d="M2 14c0-3 3-5 6-5s6 2 6 5" fill="none" stroke="currentColor" stroke-width="1.3" />
+            </svg>系统权限</div>
+          <div class="menu-item"><svg class="icon" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.3" />
+              <path d="M8 4v4l3 2" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linecap="round" />
+            </svg>代办管理</div>
+          <div class="menu-item"><svg class="icon" viewBox="0 0 16 16">
+              <rect x="2" y="3" width="12" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.3" />
+              <line x1="5" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.3" />
+              <line x1="5" y1="9" x2="11" y2="9" stroke="currentColor" stroke-width="1.3" />
+            </svg>客户管理</div>
+          <div class="menu-item"><svg class="icon" viewBox="0 0 16 16">
+              <path d="M2 4h12v8H2zM5 12v2M11 12v2" fill="none" stroke="currentColor" stroke-width="1.3"
+                stroke-linejoin="round" />
+            </svg>用户应用管理</div>
+        </div>
+        <div class="menu-group">
+          <div class="menu-item"><svg class="icon" viewBox="0 0 16 16">
+              <path d="M2 4l6-2 6 2v8l-6 2-6-2z" fill="none" stroke="currentColor" stroke-width="1.3"
+                stroke-linejoin="round" />
+            </svg>客户分析</div>
+          <div class="menu-item"><svg class="icon" viewBox="0 0 16 16">
+              <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.3" />
+              <circle cx="8" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="1.3" />
+            </svg>账户管理</div>
+          <div class="menu-item"><svg class="icon" viewBox="0 0 16 16">
+              <rect x="2" y="3" width="12" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.3" />
+              <line x1="5" y1="6" x2="11" y2="6" stroke="currentColor" stroke-width="1.3" />
+              <line x1="5" y1="9" x2="9" y2="9" stroke="currentColor" stroke-width="1.3" />
+            </svg>应用管理</div>
+          <div class="menu-item"><svg class="icon" viewBox="0 0 16 16">
+              <path d="M2 4h12v8H2z" fill="none" stroke="currentColor" stroke-width="1.3" />
+              <line x1="2" y1="14" x2="14" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            </svg>门户管理</div>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- 主内容 -->
+    <main class="main">
+
+      <!-- 面包屑 -->
+      <div class="breadcrumb">
+        <span class="home">
+          <svg viewBox="0 0 16 16">
+            <path d="M2 8l6-5 6 5v6H2z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" />
+          </svg>
+          工作台
+        </span>
+        <span class="sep">/</span>
+        <span>权限管理</span>
+        <span class="sep">/</span>
+        <span class="current">APP权限配置</span>
+      </div>
+
+      <!-- 内容 -->
+      <div class="content">
+
+        <!-- 工具栏 -->
+        <div class="content-toolbar">
+          <button class="btn btn-primary">+ 菜单按钮</button>
+          <button class="btn btn-outline" data-action="open-tenant-menu">维护租户菜单</button>
+        </div>
+
+        <!-- 表格 Grid -->
+        <div class="table-card">
+          <div class="table-header table-grid">
+            <div>菜单名称</div>
+            <div>菜单编码</div>
+            <div>菜单路径</div>
+            <div>菜单类型</div>
+            <div>显示层级</div>
+            <div>排序</div>
+            <div>操作</div>
+          </div>
+
+          <div class="table-row table-grid">
+            <div><button class="expand-btn"><svg viewBox="0 0 16 16">
+                  <path d="M6 4l4 4-4 4" stroke="#1677FF" stroke-width="1.8" fill="none" stroke-linecap="round" />
+                </svg></button>设备管理</div>
+            <div>mysany-web-machines-machines</div>
+            <div>/standard/machine/machine</div>
+            <div><span class="tag tag-page">页面</span></div>
+            <div>0</div>
+            <div>0</div>
+            <div class="actions"><a>新增子菜单</a><a>编辑</a><a style="color:var(--primary)">删除</a></div>
+          </div>
+
+          <div class="table-row table-grid">
+            <div><button class="expand-btn"><svg viewBox="0 0 16 16">
+                  <path d="M6 4l4 4-4 4" stroke="#1677FF" stroke-width="1.8" fill="none" stroke-linecap="round" />
+                </svg></button>数据大屏</div>
+            <div>mysany-web-fleet-screen</div>
+            <div>/standard/cloudLeasingScreen/cloudLeasingScreen</div>
+            <div><span class="tag tag-page">页面</span></div>
+            <div>0</div>
+            <div>100</div>
+            <div class="actions"><a>新增子菜单</a><a>编辑</a><a style="color:var(--primary)">删除</a></div>
+          </div>
+
+          <div class="table-row table-grid">
+            <div><button class="expand-btn"><svg viewBox="0 0 16 16">
+                  <path d="M6 4l4 4-4 4" stroke="#1677FF" stroke-width="1.8" fill="none" stroke-linecap="round" />
+                </svg></button>项目管理</div>
+            <div>mysany-web-project-project</div>
+            <div>/standard/project/list</div>
+            <div><span class="tag tag-page">页面</span></div>
+            <div>0</div>
+            <div>200</div>
+            <div class="actions"><a>新增子菜单</a><a>编辑</a><a style="color:var(--primary)">删除</a></div>
+          </div>
+
+          <div class="table-row table-grid" data-sub="监控中心">
+            <div><button class="expand-btn"><svg viewBox="0 0 16 16">
+                  <path d="M6 4l4 4-4 4" stroke="#1677FF" stroke-width="1.8" fill="none" stroke-linecap="round" />
+                </svg></button>监控中心</div>
+            <div>mysany-web-monitor-center</div>
+            <div>—</div>
+            <div><span class="tag tag-dir">目录</span></div>
+            <div>0</div>
+            <div>300</div>
+            <div class="actions"><a>新增子菜单</a><a>编辑</a><a style="color:var(--primary)">删除</a></div>
+          </div>
+
+          <div class="table-row table-grid">
+            <div><button class="expand-btn"><svg viewBox="0 0 16 16">
+                  <path d="M6 4l4 4-4 4" stroke="#1677FF" stroke-width="1.8" fill="none" stroke-linecap="round" />
+                </svg></button>设备保养</div>
+            <div>mysany-web-maintenance-maintenance</div>
+            <div>/standard/maintenance/maintenance</div>
+            <div><span class="tag tag-page">页面</span></div>
+            <div>0</div>
+            <div>400</div>
+            <div class="actions"><a>新增子菜单</a><a>编辑</a><a style="color:var(--primary)">删除</a></div>
+          </div>
+
+          <div class="table-row table-grid" data-sub="保养管理">
+            <div><button class="expand-btn"><svg viewBox="0 0 16 16">
+                  <path d="M6 4l4 4-4 4" stroke="#1677FF" stroke-width="1.8" fill="none" stroke-linecap="round" />
+                </svg></button>保养管理</div>
+            <div>mysany-web-maintenance-maintenance</div>
+            <div>—</div>
+            <div><span class="tag tag-dir">目录</span></div>
+            <div>0</div>
+            <div>450</div>
+            <div class="actions"><a>新增子菜单</a><a>编辑</a><a style="color:var(--primary)">删除</a></div>
+          </div>
+
+          <div class="table-row table-grid" data-sub="报修记录汇总">
+            <div><button class="expand-btn"><svg viewBox="0 0 16 16">
+                  <path d="M6 4l4 4-4 4" stroke="#1677FF" stroke-width="1.8" fill="none" stroke-linecap="round" />
+                </svg></button>报修记录汇总</div>
+            <div>mysany-web-costAccountingStats</div>
+            <div>—</div>
+            <div><span class="tag tag-dir">目录</span></div>
+            <div>0</div>
+            <div>500</div>
+            <div class="actions"><a>新增子菜单</a><a>编辑</a><a style="color:var(--primary)">删除</a></div>
+          </div>
+
+          <div class="table-row table-grid" data-sub="应用监控">
+            <div><button class="expand-btn"><svg viewBox="0 0 16 16">
+                  <path d="M6 4l4 4-4 4" stroke="#1677FF" stroke-width="1.8" fill="none" stroke-linecap="round" />
+                </svg></button>应用监控</div>
+            <div>mysany-web-codeAccountingStats</div>
+            <div>—</div>
+            <div><span class="tag tag-dir">目录</span></div>
+            <div>0</div>
+            <div>600</div>
+            <div class="actions"><a>新增子菜单</a><a>编辑</a><a style="color:var(--primary)">删除</a></div>
+          </div>
+
+          <div class="table-row table-grid">
+            <div><button class="expand-btn"><svg viewBox="0 0 16 16">
+                  <path d="M6 4l4 4-4 4" stroke="#1677FF" stroke-width="1.8" fill="none" stroke-linecap="round" />
+                </svg></button>企业服务</div>
+            <div>mysany-web-audioVideo</div>
+            <div>—</div>
+            <div><span class="tag tag-dir">目录</span></div>
+            <div>0</div>
+            <div>-700</div>
+            <div class="actions"><a>新增子菜单</a><a>编辑</a><a style="color:var(--primary)">删除</a></div>
+          </div>
+
+          <div class="table-row table-grid">
+            <div><button class="expand-btn"><svg viewBox="0 0 16 16">
+                  <path d="M6 4l4 4-4 4" stroke="#1677FF" stroke-width="1.8" fill="none" stroke-linecap="round" />
+                </svg></button>重卡车队运营</div>
+            <div>mysany-web-system-management</div>
+            <div>—</div>
+            <div><span class="tag tag-dir">目录</span></div>
+            <div>0</div>
+            <div>800</div>
+            <div class="actions"><a>新增子菜单</a><a>编辑</a><a style="color:var(--primary)">删除</a></div>
+          </div>
+        </div>
+
+        <!-- 分页 -->
+        <div class="pagination">
+          <div class="total">共 23 条记录</div>
+          <div class="page-controls">
+            <button class="page-btn" disabled>
+              <svg width="12" height="12" viewBox="0 0 16 16">
+                <path d="M10 4L6 8l4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"
+                  stroke-linejoin="round" />
+              </svg>
+            </button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">
+              <svg width="12" height="12" viewBox="0 0 16 16">
+                <path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"
+                  stroke-linejoin="round" />
+              </svg>
+            </button>
+            <span class="page-size">10 条/页</span>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- 选择租户列表弹窗 -->
+  <div class="modal-overlay" id="picker-modal">
+    <div class="modal modal-picker">
+      <div class="modal-header">
+        <h2>选择租户</h2>
+        <button class="modal-close">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="picker-search-row">
+          <input type="text" class="picker-search" placeholder="请输入租户名称">
+          <button class="btn btn-primary">查询</button>
+          <button class="btn btn-default">重置</button>
+        </div>
+
+        <div class="picker-table">
+          <div class="picker-header">
+            <div>租户名称</div>
+            <div>租户类型</div>
+            <div>负责人</div>
+            <div>联系电话</div>
+            <div>操作</div>
+          </div>
+          <div class="picker-row">
+            <div>SANY</div>
+            <div>个人租户</div>
+            <div>—</div>
+            <div>—</div>
+            <div><a href="javascript:;" data-pick-tenant="SANY">选择</a></div>
+          </div>
+          <div class="picker-row">
+            <div>GGG</div>
+            <div>个人租户</div>
+            <div>—</div>
+            <div>—</div>
+            <div><a href="javascript:;" data-pick-tenant="GGG">选择</a></div>
+          </div>
+          <div class="picker-row">
+            <div>巴西回国3260622</div>
+            <div>企业租户</div>
+            <div>—</div>
+            <div>17722223333</div>
+            <div><a href="javascript:;" data-pick-tenant="巴西回国3260622">选择</a></div>
+          </div>
+          <div class="picker-row">
+            <div>贝塔集团</div>
+            <div>个人租户</div>
+            <div>—</div>
+            <div>—</div>
+            <div><a href="javascript:;" data-pick-tenant="贝塔集团">选择</a></div>
+          </div>
+          <div class="picker-row">
+            <div>群尧集团</div>
+            <div>企业租户</div>
+            <div>群尧</div>
+            <div>15574458940</div>
+            <div><a href="javascript:;" data-pick-tenant="群尧集团">选择</a></div>
+          </div>
+        </div>
+
+        <div class="picker-pagination">
+          <button class="pg-btn" disabled>上一页</button>
+          <button class="pg-btn active">第 1 页, 共 209 页, 共 2090 条数据</button>
+          <button class="pg-btn">下一页</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline modal-close">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 维护租户菜单弹窗 -->
+  <div class="modal-overlay" id="tenant-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>维护租户菜单</h2>
+        <button class="modal-close">×</button>
+      </div>
+      <div class="modal-body">
+
+        <!-- 选择租户 -->
+        <div class="field-label">选择租户</div>
+        <div class="tenant-input-row">
+          <input type="text" value="GGGN">
+          <button class="btn btn-primary" data-action="open-picker">选择</button>
+        </div>
+
+        <!-- 权限类型 Tab -->
+        <div class="tenant-tabs">
+          <button class="tenant-tab active" data-tab="pc" onclick="switchTenantTab(this)">PC菜单权限</button>
+          <button class="tenant-tab" data-tab="app" onclick="switchTenantTab(this)">APP权限</button>
+        </div>
+
+        <!-- ===== PC菜单权限 面板 ===== -->
+        <div class="tenant-panel show" id="tenant-panel-pc">
+          <!-- 说明 -->
+          <div class="tenant-tips">
+            <b>PC菜单权限</b>（按当前租户种类仅展示个人菜单；勾选表示分配给该租户）
+          </div>
+
+          <!-- 工具栏 -->
+          <div class="tenant-tools">
+            <button class="tenant-tool" data-act="all">全选</button>
+            <button class="tenant-tool" data-act="invert">反选</button>
+            <button class="tenant-tool" data-act="clear">清空</button>
+          </div>
+
+          <!-- 菜单树 -->
+          <div class="tenant-tree">
+            <div class="tree-group">
+              <div class="tnode level-0">
+                <span class="tnode-arrow empty"></span>
+                <input type="checkbox" onchange="onTenantCbChange(this)">
+                <span class="tnode-label">设备管理</span>
+              </div>
+            </div>
+
+            <div class="tree-group">
+              <div class="tnode level-0">
+                <span class="tnode-arrow empty"></span>
+                <input type="checkbox" onchange="onTenantCbChange(this)">
+                <span class="tnode-label">数据大屏</span>
+              </div>
+            </div>
+
+            <div class="tree-group">
+              <div class="tnode level-0" onclick="toggleTenantTree(this)">
+                <span class="tnode-arrow expanded"></span>
+                <input type="checkbox" onchange="onTenantCbChange(this)">
+                <span class="tnode-label">监控中心</span>
+              </div>
+              <div class="tnode-children" style="display:block">
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">地图监控</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">预警中心</span></div>
+              </div>
+            </div>
+
+            <div class="tree-group">
+              <div class="tnode level-0" onclick="toggleTenantTree(this)">
+                <span class="tnode-arrow expanded"></span>
+                <input type="checkbox" onchange="onTenantCbChange(this)">
+                <span class="tnode-label">维修管理</span>
+              </div>
+              <div class="tnode-children" style="display:block">
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">维修列表</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">费用审批</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">配件管理</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== APP权限 面板 ===== -->
+        <div class="tenant-panel" id="tenant-panel-app">
+          <!-- 说明 -->
+          <div class="tenant-tips">
+            <b>APP权限</b>（按当前租户种类展示 APP 端功能；勾选表示分配给该租户）
+          </div>
+
+          <!-- 工具栏 -->
+          <div class="tenant-tools">
+            <button class="tenant-tool" data-act="all">全选</button>
+            <button class="tenant-tool" data-act="invert">反选</button>
+            <button class="tenant-tool" data-act="clear">清空</button>
+          </div>
+
+          <!-- APP 权限树（二级联动：模块 → 功能） -->
+          <div class="tenant-tree" id="app-perm-tree">
+            <div class="tree-group">
+              <div class="tnode level-0" onclick="toggleTenantTree(this)">
+                <span class="tnode-arrow expanded"></span>
+                <input type="checkbox" onchange="onTenantCbChange(this)">
+                <span class="tnode-label">首页</span>
+              </div>
+              <div class="tnode-children" style="display:block">
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">搜索</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">扫一扫</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">消息中心</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">我要召请</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">我要配件</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">设备保养</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">产品中心</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">设备开机动态</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">设备预警</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">机群报表</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">网点中心</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">绑定设备</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">新闻</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">客户心声</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">分享设备</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">客户认证</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">设备分组</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">考勤</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">维修助手</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">电子围栏</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">服务中心</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">吊臂计算</span></div>
+              </div>
+            </div>
+
+            <div class="tree-group">
+              <div class="tnode level-0" onclick="toggleTenantTree(this)">
+                <span class="tnode-arrow expanded"></span>
+                <input type="checkbox" onchange="onTenantCbChange(this)">
+                <span class="tnode-label">圈子</span>
+              </div>
+              <div class="tnode-children" style="display:block">
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">推荐</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">发布</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">关注</span></div>
+              </div>
+            </div>
+
+            <div class="tree-group">
+              <div class="tnode level-0" onclick="toggleTenantTree(this)">
+                <span class="tnode-arrow expanded"></span>
+                <input type="checkbox" onchange="onTenantCbChange(this)">
+                <span class="tnode-label">设备</span>
+              </div>
+              <div class="tnode-children" style="display:block">
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">设备列表</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">设备详情页</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">数据报表</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">数据分析</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">动态曲线</span></div>
+              </div>
+            </div>
+
+            <div class="tree-group">
+              <div class="tnode level-0" onclick="toggleTenantTree(this)">
+                <span class="tnode-arrow expanded"></span>
+                <input type="checkbox" onchange="onTenantCbChange(this)">
+                <span class="tnode-label">我</span>
+              </div>
+              <div class="tnode-children" style="display:block">
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">个人信息</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">设置</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">星星活动</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">主机交付</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">配件交付</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">主机询价</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">配件询价</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">设备管理</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">设备预警设置</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">自助服务</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">地址管理</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">积分商城</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">收藏中心</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">app反馈</span></div>
+                <div class="tnode level-2"><span class="tnode-arrow empty"></span><input type="checkbox"
+                    onchange="onTenantCbChange(this)"><span class="tnode-label">代金劵</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <!-- 修正按钮布局防溢出 -->
+      <div class="modal-footer">
+        <button class="btn btn-outline modal-close">取消</button>
+        <button class="btn btn-primary">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var SUB_MENUS = {
+      '监控中心': [
+        { name: '地图监控', code: 'mysany-web-monitor-map', path: '/standard/monitor/map', type: '页面' },
+        { name: '预警中心', code: 'mysany-web-monitor-alarm', path: '/standard/monitor/alarm', type: '页面' }
+      ],
+      '保养管理': [
+        { name: '设备保养清单', code: 'mysany-web-maintenance-maintenance-device', path: '/standard/maintenance/device', type: '按钮' },
+        { name: '设备保养记录', code: 'mysany-web-maintenance-maintenance-record', path: '/standard/maintenance/record', type: '按钮' }
+      ],
+      '报修记录汇总': [
+        { name: '维修工单统计', code: 'mysany-web-repair-stats', path: '/standard/repair/stats', type: '页面' },
+        { name: '报修明细', code: 'mysany-web-repair-detail', path: '/standard/repair/detail', type: '按钮' }
+      ],
+      '应用监控': [
+        { name: '应用状态', code: 'mysany-web-app-status', path: '/standard/app/status', type: '页面' },
+        { name: '接口监控', code: 'mysany-web-api-monitor', path: '/standard/app/api', type: '按钮' }
+      ]
+    };
+
+    // 列表展开/折叠
+    document.querySelectorAll('.expand-btn').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var isExpanded = this.classList.contains('expanded');
+        var row = this.closest('.table-row');
+        if (!row) return;
+
+        var key = row.getAttribute('data-sub');
+        if (!key) return;
+
+        var next = row.nextElementSibling;
+        if (isExpanded) {
+          this.classList.remove('expanded');
+          if (next && next.classList.contains('sub-rows')) {
+            next.style.display = 'none';
+          }
+        } else {
+          this.classList.add('expanded');
+          if (next && next.classList.contains('sub-rows')) {
+            next.style.display = 'block';
+          } else {
+            var subs = SUB_MENUS[key] || [];
+            var wrap = document.createElement('div');
+            wrap.className = 'sub-rows';
+            wrap.style.display = 'block';
+            subs.forEach(function (s) {
+              var div = document.createElement('div');
+              div.className = 'sub-row table-grid';
+              div.innerHTML =
+                '<div class="sub-name">' + s.name + '</div>' +
+                '<div>' + s.code + '</div>' +
+                '<div>' + (s.path || '—') + '</div>' +
+                '<div><span class="sub-tag">' + s.type + '</span></div>' +
+                '<div>1</div>' +
+                '<div>0</div>' +
+                '<div class="actions"><button class="btn-mini">编辑</button><button class="btn-mini danger">删除</button></div>';
+              wrap.appendChild(div);
+            });
+            row.parentNode.insertBefore(wrap, row.nextSibling);
+          }
+        }
+      });
+    });
+
+    // 维护租户菜单弹窗交互
+    var tenantModal = document.getElementById('tenant-modal');
+    var pickerModal = document.getElementById('picker-modal');
+
+    document.addEventListener('click', function (e) {
+      var openBtn = e.target.closest('[data-action="open-tenant-menu"]');
+      if (openBtn) { tenantModal.classList.add('show'); return; }
+
+      var openPicker = e.target.closest('[data-action="open-picker"]');
+      if (openPicker) { pickerModal.classList.add('show'); return; }
+
+      if (e.target.classList.contains('modal-close')) {
+        e.target.closest('.modal-overlay').classList.remove('show');
+      }
+
+      if (e.target === tenantModal) tenantModal.classList.remove('show');
+      if (e.target === pickerModal) pickerModal.classList.remove('show');
+
+      var pickBtn = e.target.closest('[data-pick-tenant]');
+      if (pickBtn) {
+        var name = pickBtn.getAttribute('data-pick-tenant');
+        var input = document.querySelector('#tenant-modal .tenant-input-row input');
+        if (input) input.value = name;
+        pickerModal.classList.remove('show');
+      }
+    });
+
+    // 权限类型 Tab 切换
+    function switchTenantTab(btn) {
+      document.querySelectorAll('.tenant-tab').forEach(function (t) { t.classList.remove('active'); });
+      btn.classList.add('active');
+      var key = btn.getAttribute('data-tab');
+      document.getElementById('tenant-panel-pc').classList.toggle('show', key === 'pc');
+      document.getElementById('tenant-panel-app').classList.toggle('show', key === 'app');
+    }
+
+    // 弹窗菜单树展开/收起
+    function toggleTenantTree(nodeEl) {
+      var arrow = nodeEl.querySelector('.tnode-arrow');
+      if (arrow && !arrow.classList.contains('empty')) {
+        arrow.classList.toggle('expanded');
+        var children = nodeEl.nextElementSibling;
+        if (children && children.classList.contains('tnode-children')) {
+          children.style.display = arrow.classList.contains('expanded') ? 'block' : 'none';
+        }
+      }
+    }
+
+    // 弹窗菜单树 Checkbox 父子多选联动
+    function onTenantCbChange(cb) {
+      var group = cb.closest('.tree-group');
+      var isChecked = cb.checked;
+
+      var children = group.querySelector('.tnode-children');
+      if (children) {
+        children.querySelectorAll('input[type="checkbox"]').forEach(function (c) {
+          c.checked = isChecked;
+          c.indeterminate = false;
+        });
+      }
+
+      var parentGroup = group.parentElement.closest('.tree-group');
+      if (parentGroup) {
+        var parentCb = parentGroup.querySelector(':scope > .tnode input[type="checkbox"]');
+        var brotherCbs = parentGroup.querySelectorAll('.tnode-children input[type="checkbox"]');
+        var checkedCount = 0;
+        brotherCbs.forEach(function (c) { if (c.checked) checkedCount++; });
+
+        if (checkedCount === brotherCbs.length) {
+          parentCb.checked = true;
+          parentCb.indeterminate = false;
+        } else if (checkedCount > 0) {
+          parentCb.checked = false;
+          parentCb.indeterminate = true;
+        } else {
+          parentCb.checked = false;
+          parentCb.indeterminate = false;
+        }
+      }
+    }
+
+    // 全选 / 反选 / 清空（作用于当前激活面板）
+    document.querySelectorAll('.tenant-tool').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var panel = this.closest('.tenant-panel');
+        if (!panel) return;
+        var cbs = panel.querySelectorAll('.tenant-tree input[type="checkbox"]');
+        var act = this.getAttribute('data-act');
+        cbs.forEach(function (c) {
+          c.indeterminate = false;
+          if (act === 'all') c.checked = true;
+          else if (act === 'clear') c.checked = false;
+          else if (act === 'invert') c.checked = !c.checked;
+        });
+      });
+    });
+  </script>
+
+</body>

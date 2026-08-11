@@ -1,0 +1,2108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>角色详情 - 机手 - MySANY</title>
+  <style>
+    :root {
+      --primary: #C41E29;
+      --primary-hover: #A01822;
+      --primary-gradient: linear-gradient(135deg, #D62331 0%, #B01823 100%);
+      --primary-bg: rgba(196, 30, 41, 0.05);
+      --primary-bg-hover: rgba(196, 30, 41, 0.09);
+      --bg-page: #F5F6FA;
+      --bg-card: #FFFFFF;
+      --warning: #FAAD14;
+      --success: #52C41A;
+      --info: #1677FF;
+      --text-1: #1F1F1F;
+      --text-2: #5C6470;
+      --text-3: #9AA0AA;
+      --text-disabled: #BFBFBF;
+      --border: #E5E8ED;
+      --border-light: #EEF0F4;
+      --radius-input: 6px;
+      --radius-card: 12px;
+      --shadow-card: 0 2px 12px rgba(31, 45, 61, .06);
+      --shadow-card-hover: 0 8px 24px rgba(31, 45, 61, .1);
+      --shadow-primary: 0 4px 12px rgba(196, 30, 41, .25);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(180deg, #FAFBFF 0, var(--bg-page) 220px);
+      color: var(--text-1);
+      font-size: 14px;
+      -webkit-font-smoothing: antialiased
+    }
+
+    a {
+      color: var(--info);
+      text-decoration: none
+    }
+
+    a:hover {
+      text-decoration: underline
+    }
+
+    /* ========== 顶部 Header ========== */
+    .header {
+      height: 48px;
+      background: #FFF;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center
+    }
+
+    .logo {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+      font-style: italic
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-size: 13px;
+      color: var(--text-2)
+    }
+
+    .lang-switch {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px
+    }
+
+    .lang-switch::before {
+      content: "";
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><circle cx='8' cy='8' r='7' stroke='%23999' stroke-width='1.2' fill='none'/><line x1='8' y1='1' x2='8' y2='15' stroke='%23999' stroke-width='1.2'/><ellipse cx='8' cy='8' rx='3' ry='7' stroke='%23999' stroke-width='1.2' fill='none'/></svg>") no-repeat center/contain
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer
+    }
+
+    .avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #FFB88C, #DE6262);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFF;
+      font-size: 12px;
+      font-weight: 600
+    }
+
+    .header-tagline {
+      font-style: italic;
+      color: var(--text-3);
+      font-size: 12px
+    }
+
+    /* ========== 布局 ========== */
+    .layout {
+      display: flex;
+      padding-top: 48px;
+      min-height: 100vh
+    }
+
+    .sidebar {
+      width: 180px;
+      background: #FFF;
+      border-right: 1px solid var(--border);
+      padding: 16px 0 0;
+      flex-shrink: 0;
+      height: calc(100vh - 48px);
+      position: sticky;
+      top: 48px;
+      display: flex;
+      flex-direction: column
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto
+    }
+
+    .menu-item {
+      padding: 9px 16px 9px 28px;
+      font-size: 13px;
+      color: var(--text-2);
+      cursor: pointer;
+      transition: all .15s;
+      border-left: 3px solid transparent
+    }
+
+    .menu-item:hover {
+      color: var(--text-1);
+      background: #FAFAFA
+    }
+
+    .menu-item.active {
+      color: var(--primary);
+      background: var(--primary-bg);
+      border-left-color: var(--primary);
+      font-weight: 500
+    }
+
+    .menu-parent {
+      padding: 9px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-2);
+      cursor: pointer;
+      transition: all .15s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-left: 3px solid transparent
+    }
+
+    .menu-parent:hover {
+      color: var(--text-1);
+      background: #FAFAFA
+    }
+
+    .menu-parent.active {
+      color: var(--primary);
+      background: var(--primary-bg);
+      border-left-color: var(--primary);
+      font-weight: 600
+    }
+
+    .menu-parent .arrow {
+      margin-left: auto;
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid currentColor
+    }
+
+    .sidebar-toggle {
+      padding: 14px 16px;
+      border-top: 1px solid var(--border-light);
+      text-align: center;
+      color: var(--text-3);
+      font-size: 18px;
+      cursor: pointer;
+      letter-spacing: 2px;
+      transition: color .15s
+    }
+
+    .sidebar-toggle:hover {
+      color: var(--primary)
+    }
+
+    /* ========== 主内容 ========== */
+    .main {
+      flex: 1;
+      padding: 20px 28px 28px;
+      min-width: 0
+    }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto
+    }
+
+    /* 返回 */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-2);
+      margin-bottom: 18px;
+      transition: color .15s, transform .15s
+    }
+
+    .back-link svg {
+      width: 14px;
+      height: 14px;
+      transition: transform .2s
+    }
+
+    .back-link:hover {
+      color: var(--primary)
+    }
+
+    .back-link:hover svg {
+      transform: translateX(-3px)
+    }
+
+    /* ========== 角色信息卡片 ========== */
+    .role-info-card {
+      background: #FFF;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-card);
+      padding: 22px 26px;
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-card);
+      position: relative;
+      overflow: hidden;
+      transition: box-shadow .25s
+    }
+
+    .role-info-card:hover {
+      box-shadow: var(--shadow-card-hover)
+    }
+
+    .role-info-card::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--primary-gradient)
+    }
+
+    .role-info-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-shrink: 0;
+      min-width: 150px;
+      padding-left: 10px
+    }
+
+    .role-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: var(--primary-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFF;
+      flex-shrink: 0;
+      box-shadow: var(--shadow-primary)
+    }
+
+    .role-icon svg {
+      width: 26px;
+      height: 26px
+    }
+
+    .role-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #181C20;
+      letter-spacing: .5px;
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .role-title::after {
+      content: "角色";
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--primary);
+      background: var(--primary-bg);
+      border: 1px solid rgba(196, 30, 41, .25);
+      padding: 2px 8px;
+      border-radius: 4px
+    }
+
+    .role-info-fields {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      flex: 1;
+      align-items: center
+    }
+
+    .field {
+      padding: 0 26px;
+      border-left: 1px solid var(--border-light)
+    }
+
+    .field:first-child {
+      border-left: none;
+      padding-left: 0
+    }
+
+    .field label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-3);
+      margin-bottom: 6px;
+      letter-spacing: .5px
+    }
+
+    .field .value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-1);
+      white-space: nowrap
+    }
+
+    .role-info-actions {
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+      padding-left: 8px
+    }
+
+    /* 按钮 */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 22px;
+      font-size: 13px;
+      border-radius: var(--radius-input);
+      cursor: pointer;
+      border: none;
+      transition: all .2s;
+      font-family: inherit;
+      font-weight: 500
+    }
+
+    .btn-primary {
+      background: var(--primary-gradient);
+      color: #FFF;
+      box-shadow: var(--shadow-primary)
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(196, 30, 41, .35)
+    }
+
+    .btn-primary:active {
+      transform: translateY(0)
+    }
+
+    .btn-outline {
+      background: #FFF;
+      border: 1px solid var(--border);
+      color: var(--text-1)
+    }
+
+    .btn-outline:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-bg);
+      transform: translateY(-1px);
+      box-shadow: 0 3px 10px rgba(31, 45, 61, .08)
+    }
+
+    .btn-outline:active {
+      transform: translateY(0)
+    }
+
+    /* ========== Tab ========== */
+    .tab-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 18px
+    }
+
+    .tab-nav {
+      display: flex;
+      gap: 36px
+    }
+
+    .tab-bar .role-info-actions {
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+      align-items: center
+    }
+
+    .tab-item {
+      padding: 12px 2px;
+      font-size: 14px;
+      color: var(--text-2);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: color .2s;
+      position: relative
+    }
+
+    .tab-item::after {
+      content: "";
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--primary);
+      transform: scaleX(0);
+      transition: transform .25s ease;
+      border-radius: 2px
+    }
+
+    .tab-item.active {
+      color: var(--primary);
+      font-weight: 600
+    }
+
+    .tab-item.active::after {
+      transform: scaleX(1)
+    }
+
+    .tab-item:hover {
+      color: var(--primary)
+    }
+
+    /* ========== 警告条 ========== */
+    .alert {
+      display: flex;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 18px;
+      align-items: flex-start
+    }
+
+    .alert-warning {
+      background: linear-gradient(135deg, #FFF7E6 0%, #FFFCF2 100%);
+      border: 1px solid #FFE3A3;
+      color: #AD6800;
+      box-shadow: 0 2px 8px rgba(250, 173, 20, .1)
+    }
+
+    .alert-icon {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      margin-top: 1px;
+      filter: drop-shadow(0 1px 2px rgba(250, 173, 20, .4))
+    }
+
+    /* ========== 工具栏 ========== */
+    .tree-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: linear-gradient(180deg, #FCFCFD, #F7F8FA);
+      border: 1px solid var(--border-light);
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px
+    }
+
+    .search-box {
+      position: relative;
+      width: 260px
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 7px 12px 7px 32px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-input);
+      font-size: 13px;
+      outline: none;
+      background: #FFF;
+      color: var(--text-1);
+      transition: border-color .2s, box-shadow .2s;
+      font-family: inherit
+    }
+
+    .search-box input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(196, 30, 41, .08)
+    }
+
+    .search-box input::placeholder {
+      color: var(--text-3)
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 14px;
+      height: 14px;
+      color: var(--text-3)
+    }
+
+    .toolbar-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-input);
+      background: #FFF;
+      font-size: 13px;
+      color: var(--text-2);
+      cursor: pointer;
+      transition: all .2s;
+      font-family: inherit
+    }
+
+    .toolbar-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-bg)
+    }
+
+    .toolbar-btn svg {
+      width: 14px;
+      height: 14px
+    }
+
+    .toolbar-link {
+      font-size: 13px;
+      color: var(--primary);
+      cursor: pointer;
+      font-weight: 500;
+      margin-left: auto
+    }
+
+    .toolbar-link:hover {
+      text-decoration: underline
+    }
+
+    /* ========== 权限树 ========== */
+    .tree-container {
+      background: #FFF;
+      border: 1px solid var(--border-light);
+      border-top: none;
+      border-bottom-left-radius: 10px;
+      border-bottom-right-radius: 10px;
+      padding: 10px 0;
+      max-height: 560px;
+      overflow-y: auto;
+      box-shadow: var(--shadow-card)
+    }
+
+    .tree-container::-webkit-scrollbar {
+      width: 6px
+    }
+
+    .tree-container::-webkit-scrollbar-thumb {
+      background: #E3E6EA;
+      border-radius: 3px
+    }
+
+    .tree-container::-webkit-scrollbar-thumb:hover {
+      background: #CDD1D8
+    }
+
+    .tree-group {
+      margin-bottom: 2px
+    }
+
+    .tree-node {
+      display: flex;
+      align-items: center;
+      padding: 7px 14px;
+      margin: 1px 10px;
+      font-size: 14px;
+      cursor: pointer;
+      user-select: none;
+      border-radius: 8px;
+      transition: background .18s, transform .18s
+    }
+
+    .tree-node:hover {
+      background: var(--primary-bg);
+      transform: translateX(2px)
+    }
+
+    .tree-node.level-0 {
+      font-weight: 600;
+      color: var(--text-1);
+      font-size: 15px
+    }
+
+    .tree-node.level-1 {
+      font-weight: 500;
+      color: var(--text-1);
+      padding-left: 28px
+    }
+
+    .tree-node.level-2 {
+      color: var(--text-2);
+      font-size: 13px;
+      padding-left: 48px
+    }
+
+    .tree-node.highlight {
+      background: #FFFBE6;
+      border: 1px dashed #FFE58F
+    }
+
+    .tree-expand {
+      width: 18px;
+      height: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 2px;
+      transition: transform .25s ease;
+      flex-shrink: 0;
+      color: var(--text-3);
+      border-radius: 4px
+    }
+
+    .tree-expand:hover {
+      color: var(--primary);
+      background: rgba(196, 30, 41, .08)
+    }
+
+    .tree-expand.expanded {
+      transform: rotate(90deg)
+    }
+
+    .tree-expand.empty {
+      visibility: hidden
+    }
+
+    /* 多选框优化 */
+    .tree-node input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border: 1.5px solid #D4D7DC;
+      border-radius: 4px;
+      margin-right: 10px;
+      cursor: pointer;
+      position: relative;
+      flex-shrink: 0;
+      transition: all .2s;
+      vertical-align: middle;
+      background: #FFF
+    }
+
+    .tree-node input[type="checkbox"]:hover {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(196, 30, 41, .08)
+    }
+
+    .tree-node input[type="checkbox"]:checked {
+      background: var(--primary);
+      border-color: var(--primary)
+    }
+
+    .tree-node input[type="checkbox"]:checked::after {
+      content: "";
+      position: absolute;
+      left: 4.5px;
+      top: 1.5px;
+      width: 4px;
+      height: 8px;
+      border: solid #FFF;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg)
+    }
+
+    .tree-node input[type="checkbox"]:indeterminate {
+      background: var(--primary);
+      border-color: var(--primary)
+    }
+
+    .tree-node input[type="checkbox"]:indeterminate::after {
+      content: "";
+      position: absolute;
+      left: 3px;
+      top: 6.5px;
+      width: 8px;
+      height: 2px;
+      background: #FFF
+    }
+
+    .tree-count {
+      color: var(--text-3);
+      font-size: 12px;
+      margin-left: 8px;
+      font-weight: 400;
+      background: #F5F6FA;
+      padding: 1px 8px;
+      border-radius: 10px
+    }
+
+    .tree-node.level-0 .tree-count {
+      background: var(--primary-bg);
+      color: var(--primary)
+    }
+
+    .tree-children {
+      overflow: hidden;
+      display: none
+    }
+
+    .tree-children.open {
+      display: block;
+      animation: treeOpen .22s ease
+    }
+
+    @keyframes treeOpen {
+      from {
+        opacity: 0;
+        transform: translateY(-4px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    /* ========== 数据权限 ========== */
+    .data-section {
+      margin-bottom: 18px;
+      background: #FFF;
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      box-shadow: var(--shadow-card);
+      overflow: hidden
+    }
+
+    .data-section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-1);
+      border-bottom: 1px solid var(--border-light);
+      background: linear-gradient(180deg, #FCFCFD, #F7F8FA)
+    }
+
+    .data-section-title svg {
+      width: 16px;
+      height: 16px;
+      color: var(--primary)
+    }
+
+    .data-section-title .sec-tip {
+      margin-left: auto;
+      font-size: 12px;
+      color: var(--text-3);
+      font-weight: 400
+    }
+
+    .radio-card {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      padding: 18px;
+      background: linear-gradient(180deg, #FAFBFF 0%, #F5F7FA 100%);
+      border-top: 1px dashed var(--border)
+    }
+
+    .radio-card .rc {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 18px 18px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all .22s cubic-bezier(.4, 0, .2, 1);
+      background: #FFF;
+      font-family: inherit;
+      text-align: left;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(31, 45, 61, .05)
+    }
+
+    .radio-card .rc::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #D62331, #B01823);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform .25s ease;
+      border-radius: 0 0 2px 2px
+    }
+
+    .radio-card .rc:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(196, 30, 41, .1)
+    }
+
+    .radio-card .rc.active {
+      border-color: var(--primary);
+      background: linear-gradient(180deg, #FFFDFD, #FDF3F4);
+      box-shadow: 0 8px 20px rgba(196, 30, 41, .14)
+    }
+
+    .radio-card .rc.active::before {
+      transform: scaleX(1)
+    }
+
+    .radio-card .rc .rc-name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-1)
+    }
+
+    .radio-card .rc .rc-name::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border);
+      flex-shrink: 0;
+      transition: all .2s;
+      box-shadow: inset 0 0 0 2px #FFF
+    }
+
+    .radio-card .rc.active .rc-name::before {
+      background: var(--primary);
+      box-shadow: 0 0 0 3px rgba(196, 30, 41, .18)
+    }
+
+    .radio-card .rc .rc-desc {
+      font-size: 12px;
+      color: var(--text-3);
+      line-height: 1.6
+    }
+
+    .radio-card .rc .rc-check {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--primary);
+      display: none;
+      align-items: center;
+      justify-content: center
+    }
+
+    .radio-card .rc.active .rc-check {
+      display: flex;
+      animation: rcPop .25s cubic-bezier(.68, -.55, .27, 1.55)
+    }
+
+    @keyframes rcPop {
+      0% {
+        transform: scale(.4);
+        opacity: 0
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 1
+      }
+    }
+
+    .radio-card .rc .rc-check svg {
+      width: 10px;
+      height: 10px
+    }
+
+    .range-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 16px 18px
+    }
+
+    .range-pills .pill {
+      padding: 6px 16px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 13px;
+      color: var(--text-2);
+      cursor: pointer;
+      transition: all .2s;
+      background: #FFF;
+      font-family: inherit
+    }
+
+    .range-pills .pill:hover {
+      border-color: var(--primary);
+      color: var(--primary)
+    }
+
+    .range-pills .pill.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #FFF;
+      font-weight: 500
+    }
+
+    .data-hint {
+      font-size: 12px;
+      color: var(--text-3);
+      padding: 0 18px 16px;
+      line-height: 1.7
+    }
+
+    /* 自定义天数 */
+    .custom-days {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 18px 14px;
+      flex-wrap: wrap
+    }
+
+    .custom-days-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-1)
+    }
+
+    .custom-days-input {
+      width: 90px;
+      padding: 5px 10px;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      font-size: 13px;
+      color: var(--text-1);
+      outline: none;
+      background: #FFF;
+      transition: all .2s;
+      font-family: inherit;
+      -moz-appearance: textfield;
+      appearance: textfield
+    }
+
+    .custom-days-input::-webkit-inner-spin-button,
+    .custom-days-input::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0
+    }
+
+    .custom-days-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(196, 30, 41, .1)
+    }
+
+    .custom-days-input.error {
+      border-color: #FF4D4F;
+      box-shadow: 0 0 0 3px rgba(255, 77, 79, .1)
+    }
+
+    .custom-days-unit {
+      font-size: 13px;
+      color: var(--text-2)
+    }
+
+    .custom-days-tip {
+      font-size: 12px;
+      color: var(--text-3);
+      background: #FFF7E6;
+      border: 1px solid #FFE3A3;
+      color: #AD6800;
+      padding: 2px 10px;
+      border-radius: 4px
+    }
+
+    /* ========== 可查看的数据对象（回显 + 选择弹窗） ========== */
+    .obj-display {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px
+    }
+
+    .obj-display-tags {
+      flex: 1;
+      min-height: 34px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: #FFF;
+      cursor: pointer;
+      transition: border-color .15s, box-shadow .15s
+    }
+
+    .obj-display-tags:hover {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(196, 30, 41, .06)
+    }
+
+    .obj-display-tags .placeholder {
+      font-size: 13px;
+      color: var(--text-3)
+    }
+
+    .obj-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 11px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 500;
+      background: var(--primary-bg);
+      border: 1px solid rgba(196, 30, 41, 0.25);
+      color: var(--primary);
+      transition: all .15s
+    }
+
+    .obj-tag:hover {
+      background: rgba(196, 30, 41, .09)
+    }
+
+    .obj-tag .obj-tag-del {
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      opacity: .65;
+      color: var(--primary)
+    }
+
+    .obj-tag .obj-tag-del:hover {
+      opacity: 1;
+      transform: scale(1.15)
+    }
+
+    .obj-display-btn {
+      flex-shrink: 0;
+      padding: 7px 20px;
+      font-size: 13px;
+      border: 1px solid var(--primary);
+      border-radius: 6px;
+      background: #FFF;
+      color: var(--primary);
+      cursor: pointer;
+      transition: all .15s;
+      font-family: inherit;
+      line-height: 20px;
+      font-weight: 500
+    }
+
+    .obj-display-btn:hover {
+      background: var(--primary);
+      color: #FFF;
+      box-shadow: 0 2px 6px rgba(196, 30, 41, .2)
+    }
+
+    /* 数据对象选择弹窗 */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000
+    }
+
+    .modal-overlay.show {
+      display: flex
+    }
+
+    .modal {
+      width: 560px;
+      max-width: calc(100vw - 40px);
+      background: #FFF;
+      border-radius: 10px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, .18);
+      max-height: 84vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden
+    }
+
+    .modal-wide {
+      width: 760px
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--border-light)
+    }
+
+    .modal-header h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-1)
+    }
+
+    .modal-close {
+      border: none;
+      background: transparent;
+      font-size: 22px;
+      color: var(--text-3);
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px;
+      transition: color .15s
+    }
+
+    .modal-close:hover {
+      color: var(--primary)
+    }
+
+    .modal-body {
+      padding: 20px 22px;
+      overflow-y: auto;
+      flex: 1
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 22px;
+      border-top: 1px solid var(--border-light)
+    }
+
+    .btn-outline {
+      background: #FFF;
+      color: var(--text-1);
+      border: 1px solid var(--border)
+    }
+
+    .btn-outline:hover {
+      border-color: var(--primary);
+      color: var(--primary)
+    }
+
+    /* 弹窗内数据对象表格 */
+    .obj-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #FFF;
+      font-size: 13px;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border-light)
+    }
+
+    .obj-table thead th {
+      background: #F7F8FA;
+      color: var(--text-2);
+      font-weight: 600;
+      padding: 14px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-light);
+      font-size: 13px
+    }
+
+    .obj-table thead th.obj-th-control {
+      text-align: center;
+      width: 200px
+    }
+
+    .obj-table tbody td {
+      padding: 16px;
+      border-bottom: 1px solid var(--border-light);
+      color: var(--text-1);
+      vertical-align: middle
+    }
+
+    .obj-table tbody tr:last-child td {
+      border-bottom: none
+    }
+
+    .obj-table tbody tr:hover {
+      background: #FAFAFA
+    }
+
+    .obj-td-module {
+      font-weight: 600;
+      width: 160px;
+      color: var(--text-1)
+    }
+
+    .obj-td-fields {
+      color: var(--text-2);
+      line-height: 1.7
+    }
+
+    .obj-td-control {
+      text-align: center
+    }
+
+    .obj-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none
+    }
+
+    .obj-toggle input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--info);
+      cursor: pointer
+    }
+
+    .obj-toggle span {
+      font-size: 13px;
+      color: var(--text-1)
+    }
+
+    .obj-toggle input[type="checkbox"]:checked + span {
+      color: var(--info);
+      font-weight: 500
+    }
+
+    .obj-expand {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      margin-right: 6px;
+      font-size: 11px;
+      color: var(--text-3);
+      cursor: pointer;
+      transition: transform .2s;
+      user-select: none
+    }
+
+    .obj-expand.open {
+      transform: rotate(90deg);
+      color: var(--primary)
+    }
+
+    .obj-field-row td {
+      padding: 6px 16px 6px 44px;
+      background: #FBFBFD;
+      border-bottom: 1px solid var(--border-light);
+      font-size: 12px;
+      color: var(--text-2)
+    }
+
+    .obj-field-row:last-child td {
+      border-bottom: none
+    }
+
+    .obj-field-name {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer
+    }
+
+    .obj-field-name input[type="checkbox"] {
+      width: 14px;
+      height: 14px;
+      accent-color: var(--info);
+      cursor: pointer
+    }
+
+    .obj-module-row.expanded {
+      background: #F7FAFF
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ========== 顶部 Header ========== -->
+  <header class="header">
+    <div class="header-left">
+      <div class="logo">MySANY</div>
+    </div>
+    <div class="header-right">
+      <div class="lang-switch">简体中文</div>
+      <div class="header-tagline">plz call me little duckplz call</div>
+      <div class="user-info">
+        <div class="avatar">舒</div>
+        <span>舒龙</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+
+    <!-- ========== 侧边导航 ========== -->
+    <aside class="sidebar">
+      <nav class="sidebar-nav">
+        <div class="menu-parent" onclick="location.href='设备管理列表.html'">
+          设备管理
+          <span class="arrow"></span>
+        </div>
+        <div class="menu-item" onclick="location.href='设备管理列表.html'">设备列表</div>
+
+        <div class="menu-parent active" onclick="location.href='角色管理.html'">
+          企业服务
+          <span class="arrow"></span>
+        </div>
+        <div class="menu-item active" onclick="location.href='角色管理.html'">角色管理</div>
+      </nav>
+      <div class="sidebar-toggle">«</div>
+    </aside>
+
+    <!-- ========== 主内容区 ========== -->
+    <main class="main">
+      <div class="page">
+
+        <!-- 返回链接 -->
+        <a href="角色管理.html" class="back-link">
+          <svg viewBox="0 0 16 16">
+            <path d="M10 4L6 8L10 12" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+          返回角色列表
+        </a>
+
+        <!-- 角色信息卡片 -->
+        <div class="role-info-card">
+          <div class="role-info-left">
+            <div class="role-icon">
+              <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none" />
+                <path
+                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+                  stroke="currentColor" stroke-width="1.5" fill="none" />
+              </svg>
+            </div>
+            <div class="role-title">管理员</div>
+          </div>
+          <div class="role-info-fields">
+            <div class="field">
+              <label>角色描述</label>
+              <div class="value">系统管理员，拥有租户内所有权限</div>
+            </div>
+            <div class="field">
+              <label>设备权限类型</label>
+              <div class="value">全部设备</div>
+            </div>
+            <div class="field">
+              <label>用户数量</label>
+              <div class="value">1 个</div>
+            </div>
+            <div class="field">
+              <label>创建时间</label>
+              <div class="value">2026-07-20 18:02:58</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 切换 + 操作按钮 -->
+        <div class="tab-bar">
+          <div class="tab-nav">
+            <div class="tab-item active" onclick="switchTab('web', this)">网页功能权限</div>
+            <div class="tab-item" onclick="switchTab('app', this)">APP功能权限</div>
+            <div class="tab-item" onclick="switchTab('data', this)">数据权限</div>
+            <div class="tab-item" onclick="switchTab('users', this)">用户分配</div>
+          </div>
+          <div class="role-info-actions">
+            <button class="btn btn-primary">保存</button>
+            <button class="btn btn-outline">重置</button>
+            <button class="btn btn-outline">恢复默认</button>
+          </div>
+        </div>
+
+        <!-- 警告提示 -->
+        <div class="alert alert-warning">
+          <svg class="alert-icon" viewBox="0 0 16 16">
+            <circle cx="8" cy="8" r="7" fill="#FAAD14" />
+            <line x1="8" y1="4" x2="8" y2="9" stroke="#FFF" stroke-width="1.5" stroke-linecap="round" />
+            <circle cx="8" cy="11.5" r="1" fill="#FFF" />
+          </svg>
+          <span>角色已分配授权权限后，解绑设备会影响整个组织的设备绑定关系，请谨慎分配权限。</span>
+        </div>
+
+        <!-- 网页功能权限面板 -->
+        <div class="perm-panel" id="panel-web">
+          <div class="tree-toolbar">
+            <div class="search-box">
+              <svg class="search-icon" viewBox="0 0 16 16">
+                <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5" fill="none" />
+                <line x1="11" y1="11" x2="14.5" y2="14.5" stroke="currentColor" stroke-width="1.5"
+                  stroke-linecap="round" />
+              </svg>
+              <input type="text" placeholder="搜索权限" oninput="filterTree(this)">
+            </div>
+            <button class="toolbar-btn" onclick="expandAll(this)">
+              <svg viewBox="0 0 16 16">
+                <path d="M4 4H12V6H4zM4 7H12V9H4zM4 10H12V12H4z" fill="currentColor" />
+              </svg>
+              展开全部
+            </button>
+            <button class="toolbar-btn" onclick="collapseAll(this)">
+              <svg viewBox="0 0 16 16">
+                <path d="M3 4H13M3 8H13M3 12H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+              </svg>
+              折叠全部
+            </button>
+            <span class="toolbar-link" onclick="toggleSelectAll(this)">全选/全不选</span>
+          </div>
+
+          <div class="tree-container">
+            <!-- 一级：设备管理 -->
+            <div class="tree-group">
+              <div class="tree-node level-0" onclick="onNodeClick(event, this)">
+                <span class="tree-expand expanded">
+                  <svg viewBox="0 0 16 16">
+                    <path d="M6 4L11 8L6 12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
+                </span>
+                <input type="checkbox" onchange="onCheckboxChange(this)">
+                <span class="node-title">设备管理<span class="tree-count">6</span></span>
+              </div>
+              <div class="tree-children open">
+                <div class="tree-group">
+                  <div class="tree-node level-1" onclick="onNodeClick(event, this)">
+                    <span class="tree-expand expanded">
+                      <svg viewBox="0 0 16 16">
+                        <path d="M6 4L11 8L6 12" stroke="currentColor" stroke-width="2" fill="none"
+                          stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    </span>
+                    <input type="checkbox" onchange="onCheckboxChange(this)">
+                    <span class="node-title">设备录入<span class="tree-count">3</span></span>
+                  </div>
+                  <div class="tree-children open">
+                    <div class="tree-node level-2"><span class="tree-expand empty"></span><input type="checkbox"
+                        onchange="onCheckboxChange(this)"><span class="node-title">绑定</span></div>
+                    <div class="tree-node level-2"><span class="tree-expand empty"></span><input type="checkbox"
+                        onchange="onCheckboxChange(this)"><span class="node-title">导入</span></div>
+                    <div class="tree-node level-2"><span class="tree-expand empty"></span><input type="checkbox"
+                        onchange="onCheckboxChange(this)"><span class="node-title">同步设备</span></div>
+                  </div>
+                </div>
+
+                <div class="tree-group">
+                  <div class="tree-node level-1" onclick="onNodeClick(event, this)">
+                    <span class="tree-expand expanded">
+                      <svg viewBox="0 0 16 16">
+                        <path d="M6 4L11 8L6 12" stroke="currentColor" stroke-width="2" fill="none"
+                          stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    </span>
+                    <input type="checkbox" onchange="onCheckboxChange(this)">
+                    <span class="node-title">设备维护<span class="tree-count">3</span></span>
+                  </div>
+                  <div class="tree-children open">
+                    <div class="tree-node level-2"><span class="tree-expand empty"></span><input type="checkbox"
+                        onchange="onCheckboxChange(this)"><span class="node-title">设备列表</span></div>
+                    <div class="tree-node level-2"><span class="tree-expand empty"></span><input type="checkbox"
+                        onchange="onCheckboxChange(this)"><span class="node-title">导出</span></div>
+                    <div class="tree-node level-2"><span class="tree-expand empty"></span><input type="checkbox"
+                        onchange="onCheckboxChange(this)"><span class="node-title">解绑</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 一级：设备详情 -->
+            <div class="tree-group">
+              <div class="tree-node level-0" onclick="onNodeClick(event, this)">
+                <span class="tree-expand expanded">
+                  <svg viewBox="0 0 16 16">
+                    <path d="M6 4L11 8L6 12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
+                </span>
+                <input type="checkbox" onchange="onCheckboxChange(this)">
+                <span class="node-title">设备详情<span class="tree-count">13</span></span>
+              </div>
+              <div class="tree-children open">
+                <div class="tree-group">
+                  <div class="tree-node level-1" onclick="onNodeClick(event, this)">
+                    <span class="tree-expand expanded">
+                      <svg viewBox="0 0 16 16">
+                        <path d="M6 4L11 8L6 12" stroke="currentColor" stroke-width="2" fill="none"
+                          stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    </span>
+                    <input type="checkbox" onchange="onCheckboxChange(this)">
+                    <span class="node-title">信息维护<span class="tree-count">3</span></span>
+                  </div>
+                  <div class="tree-children open">
+                    <div class="tree-node level-2"><span class="tree-expand empty"></span><input type="checkbox"
+                        onchange="onCheckboxChange(this)"><span class="node-title">查看资料</span></div>
+                    <div class="tree-node level-2"><span class="tree-expand empty"></span><input type="checkbox"
+                        onchange="onCheckboxChange(this)"><span class="node-title">编辑</span></div>
+                    <div class="tree-node level-2"><span class="tree-expand empty"></span><input type="checkbox"
+                        onchange="onCheckboxChange(this)"><span class="node-title">编辑设备</span></div>
+                  </div>
+                </div>
+
+                <div class="tree-group">
+                  <div class="tree-node level-1" onclick="onNodeClick(event, this)">
+                    <span class="tree-expand expanded">
+                      <svg viewBox="0 0 16 16">
+                        <path d="M6 4L11 8L6 12" stroke="currentColor" stroke-width="2" fill="none"
+                          stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    </span>
+                    <input type="checkbox" onchange="onCheckboxChange(this)">
+                    <span class="node-title">运行控制<span class="tree-count">2</span></span>
+                  </div>
+                  <div class="tree-children open">
+                    <div class="tree-node level-2"><span class="tree-expand empty"></span><input type="checkbox"
+                        onchange="onCheckboxChange(this)"><span class="node-title">停车</span></div>
+                    <div class="tree-node level-2"><span class="tree-expand empty"></span><input type="checkbox"
+                        onchange="onCheckboxChange(this)"><span class="node-title">远程启停</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div><!-- /panel-web -->
+
+        <!-- ===== APP功能权限面板 ===== -->
+        <div class="perm-panel" id="panel-app" style="display:none">
+          <div class="tree-toolbar">
+            <div class="search-box">
+              <svg class="search-icon" viewBox="0 0 16 16">
+                <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5" fill="none" />
+                <line x1="11" y1="11" x2="14.5" y2="14.5" stroke="currentColor" stroke-width="1.5"
+                  stroke-linecap="round" />
+              </svg>
+              <input type="text" placeholder="搜索权限" oninput="filterTree(this)">
+            </div>
+            <button class="toolbar-btn" onclick="expandAll(this)">
+              <svg viewBox="0 0 16 16">
+                <path d="M4 4H12V6H4zM4 7H12V9H4zM4 10H12V12H4z" fill="currentColor" />
+              </svg>
+              展开全部
+            </button>
+            <button class="toolbar-btn" onclick="collapseAll(this)">
+              <svg viewBox="0 0 16 16">
+                <path d="M3 4H13M3 8H13M3 12H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+              </svg>
+              折叠全部
+            </button>
+            <span class="toolbar-link" onclick="toggleSelectAll(this)">全选/全不选</span>
+          </div>
+
+          <div class="tree-container">
+            <div class="tree-group">
+              <div class="tree-node level-0" onclick="onNodeClick(event, this)">
+                <span class="tree-expand expanded">
+                  <svg viewBox="0 0 16 16">
+                    <path d="M6 4L11 8L6 12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
+                </span>
+                <input type="checkbox" onchange="onCheckboxChange(this)">
+                <span class="node-title">设备中心<span class="tree-count">7</span></span>
+              </div>
+              <div class="tree-children open">
+                <div class="tree-group">
+                  <div class="tree-node level-1" onclick="onNodeClick(event, this)">
+                    <span class="tree-expand expanded">
+                      <svg viewBox="0 0 16 16">
+                        <path d="M6 4L11 8L6 12" stroke="currentColor" stroke-width="2" fill="none"
+                          stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    </span>
+                    <input type="checkbox" onchange="onCheckboxChange(this)">
+                    <span class="node-title">设备列表<span class="tree-count">2</span></span>
+                  </div>
+                  <div class="tree-children open">
+                    <div class="tree-node level-2"><span class="tree-expand empty"></span><input type="checkbox"
+                        onchange="onCheckboxChange(this)"><span class="node-title">查看</span></div>
+                    <div class="tree-node level-2"><span class="tree-expand empty"></span><input type="checkbox"
+                        onchange="onCheckboxChange(this)"><span class="node-title">筛选</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div><!-- /panel-app -->
+
+        <!-- ===== 数据权限面板 ===== -->
+        <div class="perm-panel" id="panel-data" style="display:none">
+          <div class="data-section">
+            <div class="data-section-title">
+              <svg viewBox="0 0 16 16">
+                <circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.4" fill="none" />
+                <path d="M8 5v3l2 1.5" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" />
+              </svg>
+              数据组织范围
+              <span class="sec-tip">该角色可以查看哪些归属范围的数据</span>
+            </div>
+            <div class="radio-card">
+              <button class="rc active" onclick="pickRc(this)">
+                <span class="rc-name">全部设备</span>
+                <span class="rc-desc">用户可查看租户内所有设备，无需额外分配。适用于管理员、总监等高层管理人员。</span>
+                <span class="rc-check"><svg viewBox="0 0 10 10">
+                    <path d="M1.5 5.5l2 2 4.5-5" stroke="#FFF" stroke-width="1.6" fill="none" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg></span>
+              </button>
+              <button class="rc" onclick="pickRc(this)">
+                <span class="rc-name">组织+项目</span>
+                <span class="rc-desc">用户可查看其所属组织和加入项目的设备，自动计算权限。适用于区域经理、项目经理等中层管理人员。</span>
+                <span class="rc-check"><svg viewBox="0 0 10 10">
+                    <path d="M1.5 5.5l2 2 4.5-5" stroke="#FFF" stroke-width="1.6" fill="none" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg></span>
+              </button>
+              <button class="rc" onclick="pickRc(this)">
+                <span class="rc-name">个人设备</span>
+                <span class="rc-desc">用户只能查看特定分配的设备，需要管理员手动分配。适用于普通操作员、机手、维修工等基层人员。</span>
+                <span class="rc-check"><svg viewBox="0 0 10 10">
+                    <path d="M1.5 5.5l2 2 4.5-5" stroke="#FFF" stroke-width="1.6" fill="none" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg></span>
+              </button>
+            </div>
+          </div>
+
+          <div class="data-section">
+            <div class="data-section-title">
+              <svg viewBox="0 0 16 16">
+                <rect x="2" y="3" width="12" height="11" rx="1.5" stroke="currentColor" stroke-width="1.4"
+                  fill="none" />
+                <path d="M2 6.5h12M5 1.5v3M11 1.5v3" stroke="currentColor" stroke-width="1.4" fill="none"
+                  stroke-linecap="round" />
+              </svg>
+              可查看的数据对象
+              <span class="sec-tip">该角色可查看哪些数据模块及敏感字段</span>
+            </div>
+            <div style="padding:16px 18px">
+              <div class="obj-display" data-obj-display="role">
+                <div class="obj-display-tags" data-obj-tags></div>
+                <button class="obj-display-btn" data-obj-open>选择</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="data-section">
+            <div class="data-section-title">
+              <svg viewBox="0 0 16 16">
+                <rect x="2" y="3" width="12" height="11" rx="1.5" stroke="currentColor" stroke-width="1.4"
+                  fill="none" />
+                <path d="M2 6.5h12M5 1.5v3M11 1.5v3" stroke="currentColor" stroke-width="1.4" fill="none"
+                  stroke-linecap="round" />
+              </svg>
+              数据时间范围
+              <span class="sec-tip">该角色能回看多长周期内的历史数据</span>
+            </div>
+            <div class="range-pills">
+              <button class="pill active" onclick="pickPill(this)">全部历史</button>
+              <button class="pill" onclick="pickPill(this)">近 365 天</button>
+              <button class="pill" onclick="pickPill(this)">近 180 天</button>
+              <button class="pill" onclick="pickPill(this)">近 90 天</button>
+              <button class="pill" onclick="pickPill(this)">近 30 天</button>
+              <button class="pill" onclick="pickPill(this)">自定义</button>
+            </div>
+            <div class="custom-days" id="custom-days-box" style="display:none">
+              <span class="custom-days-label">自定义天数</span>
+              <input type="number" min="1" max="3650" class="custom-days-input" id="custom-days-input" value="30"
+                placeholder="请输入天数" oninput="validateDays(this)">
+              <span class="custom-days-unit">天</span>
+              <span class="custom-days-tip">以自然天为计算，1 天 = 当日 00:00 - 24:00</span>
+            </div>
+            <div class="data-hint">提示：设备所有者可查看全部历史数据；组织内其他用户仅展示配置时间范围内的数据。</div>
+          </div>
+        </div><!-- /panel-data -->
+
+        <!-- ===== 用户分配面板 ===== -->
+        <div class="perm-panel" id="panel-users" style="display:none">
+          <div style="padding:16px;background:#FFF;border:1px solid var(--border-light);border-radius:10px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+              <div style="font-size:15px;font-weight:600">已分配用户</div>
+              <button class="btn btn-primary" style="padding:6px 16px">+ 分配用户</button>
+            </div>
+            <div
+              style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--primary-bg);border:1px solid rgba(196,30,41,.2);border-radius:8px">
+              <div class="avatar" style="width:34px;height:34px;background:linear-gradient(135deg,#FFB88C,#DE6262)">舒
+              </div>
+              <div style="flex:1">
+                <div style="font-size:14px;font-weight:600;color:var(--text-1)">舒龙</div>
+                <div style="font-size:12px;color:var(--text-3)">138****1234 · 个人租户</div>
+              </div>
+              <span
+                style="font-size:12px;color:var(--success);background:#F6FFED;border:1px solid #B7EB8F;padding:2px 10px;border-radius:4px">已分配</span>
+              <a href="javascript:;" style="color:var(--primary);font-size:13px">移除</a>
+            </div>
+            <div style="margin-top:14px;font-size:12px;color:var(--text-3);text-align:center">共 1 名用户 · 可分配用户上限 50</div>
+          </div>
+        </div><!-- /panel-users -->
+
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // ========== Tab 切换 ==========
+    function switchTab(name, el) {
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      const panels = { web: 'panel-web', app: 'panel-app', data: 'panel-data', users: 'panel-users' };
+      Object.keys(panels).forEach(k => {
+        document.getElementById(panels[k]).style.display = (k === name) ? 'block' : 'none';
+      });
+    }
+
+    // ========== 节点树展开与勾选多选联动 ==========
+    function onNodeClick(e, nodeEl) {
+      if (e.target.tagName.toLowerCase() === 'input') return; // 点击checkbox时不触发展开
+      const group = nodeEl.parentElement;
+      const children = group.querySelector(':scope > .tree-children');
+      const expandIcon = nodeEl.querySelector('.tree-expand');
+      if (!children) return;
+
+      if (children.classList.contains('open')) {
+        children.classList.remove('open');
+        expandIcon.classList.remove('expanded');
+      } else {
+        children.classList.add('open');
+        expandIcon.classList.add('expanded');
+      }
+    }
+
+    // 多选复选框联动逻辑
+    function onCheckboxChange(checkbox) {
+      const node = checkbox.closest('.tree-node');
+      const group = node.parentElement;
+      const isChecked = checkbox.checked;
+
+      // 1. 向下级联勾选/取消勾选所有子节点
+      const childrenContainer = group.querySelector(':scope > .tree-children');
+      if (childrenContainer) {
+        const childCheckboxes = childrenContainer.querySelectorAll('input[type="checkbox"]');
+        childCheckboxes.forEach(cb => {
+          cb.checked = isChecked;
+          cb.indeterminate = false;
+        });
+      }
+
+      // 2. 向上级联更新父级节点状态
+      updateParentCheckbox(group);
+    }
+
+    function updateParentCheckbox(groupEl) {
+      const parentGroup = groupEl.parentElement.closest('.tree-group');
+      if (!parentGroup) return;
+
+      const parentNode = parentGroup.querySelector(':scope > .tree-node');
+      const parentCheckbox = parentNode.querySelector('input[type="checkbox"]');
+      const brotherContainer = parentGroup.querySelector(':scope > .tree-children');
+      const brotherCheckboxes = Array.from(brotherContainer.querySelectorAll(':scope > .tree-group > .tree-node > input[type="checkbox"], :scope > .tree-node > input[type="checkbox"]'));
+
+      const checkedCount = brotherCheckboxes.filter(cb => cb.checked).length;
+      const isIndeterminate = brotherCheckboxes.some(cb => cb.indeterminate);
+
+      if (checkedCount === brotherCheckboxes.length) {
+        parentCheckbox.checked = true;
+        parentCheckbox.indeterminate = false;
+      } else if (checkedCount > 0 || isIndeterminate) {
+        parentCheckbox.checked = false;
+        parentCheckbox.indeterminate = true;
+      } else {
+        parentCheckbox.checked = false;
+        parentCheckbox.indeterminate = false;
+      }
+
+      updateParentCheckbox(parentGroup);
+    }
+
+    // ========== 工具栏全选与展开折叠 ==========
+    function toggleSelectAll(btn) {
+      const panel = btn.closest('.perm-panel');
+      const cbs = panel.querySelectorAll('.tree-container input[type="checkbox"]');
+      const allChecked = Array.from(cbs).every(c => c.checked);
+      cbs.forEach(c => {
+        c.checked = !allChecked;
+        c.indeterminate = false;
+      });
+    }
+
+    function expandAll(btn) {
+      const panel = btn.closest('.perm-panel');
+      panel.querySelectorAll('.tree-children').forEach(c => c.classList.add('open'));
+      panel.querySelectorAll('.tree-expand:not(.empty)').forEach(e => e.classList.add('expanded'));
+    }
+
+    function collapseAll(btn) {
+      const panel = btn.closest('.perm-panel');
+      panel.querySelectorAll('.tree-children').forEach(c => c.classList.remove('open'));
+      panel.querySelectorAll('.tree-expand:not(.empty)').forEach(e => e.classList.remove('expanded'));
+    }
+
+    // 搜索筛选权限
+    function filterTree(input) {
+      const panel = input.closest('.perm-panel');
+      const val = input.value.trim().toLowerCase();
+      const nodes = panel.querySelectorAll('.tree-node');
+
+      nodes.forEach(node => {
+        const text = node.querySelector('.node-title').textContent.toLowerCase();
+        if (val && text.includes(val)) {
+          node.classList.add('highlight');
+          // 展开所有父节点
+          let parentChildren = node.parentElement.closest('.tree-children');
+          while (parentChildren) {
+            parentChildren.classList.add('open');
+            const pGroup = parentChildren.parentElement;
+            const pExpand = pGroup.querySelector(':scope > .tree-node .tree-expand');
+            if (pExpand) pExpand.classList.add('expanded');
+            parentChildren = pGroup.parentElement.closest('.tree-children');
+          }
+        } else {
+          node.classList.remove('highlight');
+        }
+      });
+    }
+
+    // 数据单选卡片
+    function pickRc(el) {
+      el.parentElement.querySelectorAll('.rc').forEach(r => r.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    function pickPill(el) {
+      el.parentElement.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      el.classList.add('active');
+      var box = document.getElementById('custom-days-box');
+      if (box) {
+        box.style.display = (el.textContent.trim() === '自定义') ? 'flex' : 'none';
+      }
+    }
+
+    function validateDays(el) {
+      var v = parseInt(el.value, 10);
+      var isError = !v || v < 1 || v > 3650;
+      el.classList.toggle('error', isError);
+      if (!isError) {
+        var tip = el.parentElement.querySelector('.custom-days-tip');
+        if (tip) {
+          tip.textContent = '以自然天为计算，' + v + ' 天 = 自今日 00:00 起往前推 ' + v + ' 个自然日（每天 00:00 - 24:00）';
+        }
+      }
+    }
+
+    // ========== 可查看的数据对象（弹窗选择，二级联动） ==========
+    let currentObjKey = 'role'; // 当前正在编辑的归属类型
+
+    const OBJ_TREE = [
+      { module: '设备档案数据', fields: ['设备档案', '资产编号', '铭牌参数'] },
+      { module: '位置数据', fields: ['实时位置', '轨迹回放'] },
+      { module: '运行与工况数据', fields: ['实时工况', '历史数据'] },
+      { module: '维修保养数据', fields: ['维修记录', '保养计划'] },
+      { module: '视频监控数据', fields: ['实时视频', '录像回放'] },
+      { module: '财务数据', fields: ['费用明细', '结算数据'] },
+      { module: '报表导出数据', fields: ['报表查看', '导出记录'] }
+    ];
+
+    const OBJ_STATE = {
+      role: {
+        '设备档案数据': ['设备档案', '资产编号', '铭牌参数'],
+        '位置数据': ['实时位置', '轨迹回放'],
+        '运行与工况数据': ['实时工况', '历史数据'],
+        '维修保养数据': ['维修记录', '保养计划'],
+        '视频监控数据': ['实时视频', '录像回放'],
+        '财务数据': ['费用明细', '结算数据'],
+        '报表导出数据': ['报表查看', '导出记录']
+      }
+    };
+
+    function renderObjDisplay(key) {
+      const box = document.querySelector('[data-obj-display="' + key + '"]');
+      if (!box) return;
+      const tagsBox = box.querySelector('[data-obj-tags]');
+      const selected = OBJ_TREE.filter(g => (OBJ_STATE[key][g.module] || []).length > 0);
+      tagsBox.innerHTML = selected.length
+        ? selected.map(g =>
+          '<span class="obj-tag">' + g.module +
+          '<span class="obj-tag-del" onclick="event.stopPropagation();removeObjGroup(\'' + key + '\',\'' + g.module + '\')">×</span></span>'
+        ).join('')
+        : '<span class="placeholder">未选择数据对象，点击选择</span>';
+    }
+
+    document.querySelectorAll('[data-obj-display]').forEach(function (box) {
+      const key = box.getAttribute('data-obj-display');
+      box.querySelector('[data-obj-tags]').onclick = function () { openObjPicker(key); };
+      box.querySelector('[data-obj-open]').onclick = function () { openObjPicker(key); };
+      renderObjDisplay(key);
+    });
+
+    function openObjPicker(key) {
+      currentObjKey = key;
+      document.getElementById('obj-picker-title').textContent = '可查看的数据对象';
+      const tbody = document.getElementById('obj-picker-tbody');
+      tbody.innerHTML = OBJ_TREE.map(function (g) {
+        const selected = OBJ_STATE[key][g.module] || [];
+        const allChecked = selected.length === g.fields.length;
+        const fieldsStr = g.fields.join('、');
+        return '<tr class="obj-module-row" data-module="' + g.module + '">' +
+          '<td class="obj-td-module"><span class="obj-expand">▶</span>' + g.module + '</td>' +
+          '<td class="obj-td-fields">' + fieldsStr + '</td>' +
+          '<td class="obj-td-control">' +
+          '<label class="obj-toggle">' +
+          '<input type="checkbox" class="obj-module-check" ' + (allChecked ? 'checked' : '') + '>' +
+          '<span>允许查看</span>' +
+          '</label>' +
+          '</td>' +
+          '</tr>' +
+          g.fields.map(function (f) {
+            return '<tr class="obj-field-row" data-module="' + g.module + '" style="display:none">' +
+              '<td></td>' +
+              '<td><label class="obj-field-name"><input type="checkbox" class="obj-field-check" ' +
+              (selected.indexOf(f) >= 0 ? 'checked' : '') + '>' + f + '</label></td>' +
+              '<td></td>' +
+              '</tr>';
+          }).join('');
+      }).join('');
+      bindObjListEvents(tbody);
+      openModal('obj-picker-modal');
+    }
+
+    function bindObjListEvents(tbody) {
+      tbody.querySelectorAll('.obj-module-row').forEach(function (tr) {
+        const toggleBtn = tr.querySelector('.obj-expand');
+        tr.querySelector('.obj-td-module').addEventListener('click', function (e) {
+          if (e.target.closest('.obj-toggle')) return;
+          const module = tr.getAttribute('data-module');
+          const expanded = tr.classList.toggle('expanded');
+          tbody.querySelectorAll('.obj-field-row[data-module="' + module + '"]').forEach(function (fr) {
+            fr.style.display = expanded ? '' : 'none';
+          });
+          toggleBtn.classList.toggle('open', expanded);
+        });
+        const moduleCheck = tr.querySelector('.obj-module-check');
+        moduleCheck.addEventListener('change', function () {
+          moduleCheck.indeterminate = false;
+          tbody.querySelectorAll('.obj-field-row[data-module="' + tr.getAttribute('data-module') + '"] .obj-field-check')
+            .forEach(function (c) { c.checked = moduleCheck.checked; });
+        });
+      });
+      tbody.querySelectorAll('.obj-field-check').forEach(function (c) {
+        c.addEventListener('change', function () {
+          const module = c.closest('.obj-field-row').getAttribute('data-module');
+          const moduleCheck = tbody.querySelector('.obj-module-row[data-module="' + module + '"] .obj-module-check');
+          const fieldChecks = tbody.querySelectorAll('.obj-field-row[data-module="' + module + '"] .obj-field-check');
+          const checkedCount = Array.from(fieldChecks).filter(x => x.checked).length;
+          moduleCheck.checked = checkedCount === fieldChecks.length;
+          moduleCheck.indeterminate = checkedCount > 0 && checkedCount < fieldChecks.length;
+        });
+      });
+      tbody.querySelectorAll('.obj-module-row').forEach(function (tr) {
+        const moduleCheck = tr.querySelector('.obj-module-check');
+        const fieldChecks = tbody.querySelectorAll('.obj-field-row[data-module="' + tr.getAttribute('data-module') + '"] .obj-field-check');
+        const checkedCount = Array.from(fieldChecks).filter(x => x.checked).length;
+        moduleCheck.indeterminate = checkedCount > 0 && checkedCount < fieldChecks.length;
+      });
+    }
+
+    function confirmObjPicker() {
+      const key = currentObjKey;
+      const newState = {};
+      OBJ_TREE.forEach(function (g) {
+        const module = g.module;
+        const checkedFields = Array.from(document.querySelectorAll(
+          '#obj-picker-tbody .obj-field-row[data-module="' + module + '"] .obj-field-check'))
+          .filter(c => c.checked).map(c => c.textContent.trim());
+        if (checkedFields.length > 0) newState[module] = checkedFields;
+      });
+      OBJ_STATE[key] = newState;
+      renderObjDisplay(key);
+      closeModal('obj-picker-modal');
+    }
+
+    function removeObjGroup(key, moduleName) {
+      if (OBJ_STATE[key]) delete OBJ_STATE[key][moduleName];
+      renderObjDisplay(key);
+    }
+
+    // 弹窗通用开关
+    function openModal(id) {
+      document.getElementById(id).classList.add('show');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('show');
+    }
+
+    document.querySelectorAll('.modal-overlay').forEach(function (ov) {
+      ov.addEventListener('click', function (e) {
+        if (e.target === this) closeModal(this.id);
+      });
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.show').forEach(function (ov) {
+          closeModal(ov.id);
+        });
+      }
+    });
+  </script>
+
+  <!-- ========== 可查看的数据对象选择弹窗（列表样式） ========== -->
+  <div class="modal-overlay" id="obj-picker-modal">
+    <div class="modal modal-wide">
+      <div class="modal-header">
+        <h2 id="obj-picker-title">可查看的数据对象</h2>
+        <button class="modal-close" onclick="closeModal('obj-picker-modal')">×</button>
+      </div>
+      <div class="modal-body">
+        <table class="obj-table">
+          <thead>
+            <tr>
+              <th class="obj-th-module">数据对象模块</th>
+              <th class="obj-th-fields">包含敏感字段</th>
+              <th class="obj-th-control">可见控制</th>
+            </tr>
+          </thead>
+          <tbody id="obj-picker-tbody"></tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('obj-picker-modal')">取消</button>
+        <button class="btn btn-primary" onclick="confirmObjPicker()">确定</button>
+      </div>
+    </div>
+  </div>
+
+</body>
+
+</html>
