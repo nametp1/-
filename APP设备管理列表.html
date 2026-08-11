@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>设备管理 - MySANY</title>
+  <style>
+    :root {
+      --primary: #C41E29;
+      --primary-hover: #A01822;
+      --bg-page: #F4F6FA;
+      --bg-card: #FFFFFF;
+      --text-1: #1A1A1A;
+      --text-2: #5C6470;
+      --text-3: #9AA0AA;
+      --border: #E5E8ED;
+      --success: #52C41A;
+      --radius-input: 8px;
+      --radius-card: 12px;
+      --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: var(--bg-page);
+      color: var(--text-1);
+      font-size: 14px;
+      -webkit-font-smoothing: antialiased
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none
+    }
+
+    /* ========== 手机模拟框 ========== */
+    .phone-frame {
+      max-width: 390px;
+      margin: 0 auto;
+      background: var(--bg-page);
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      box-shadow: 0 0 24px rgba(0, 0, 0, .06)
+    }
+
+    body {
+      background: #E8EBF0;
+    }
+
+    /* ========== 顶部栏 ========== */
+    .header {
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-page)
+    }
+
+    .bind-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-1);
+      cursor: pointer
+    }
+
+    .bind-btn svg {
+      width: 18px;
+      height: 18px;
+      color: var(--text-1)
+    }
+
+    .location-btn {
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-1)
+    }
+
+    .location-btn svg {
+      width: 22px;
+      height: 22px
+    }
+
+    /* ========== Tab 筛选 ========== */
+    .tab-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 16px 12px;
+      overflow-x: auto;
+      background: var(--bg-page)
+    }
+
+    .tab-pill {
+      flex-shrink: 0;
+      padding: 7px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      color: var(--text-1);
+      background: #FFF;
+      border: 1px solid transparent;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all .15s
+    }
+
+    .tab-pill.active {
+      background: #1A1A1A;
+      color: #FFF;
+      font-weight: 600;
+      border-color: #1A1A1A
+    }
+
+    .tab-pill:not(.active):hover {
+      background: #F0F1F4
+    }
+
+    /* ========== 搜索栏 ========== */
+    .search-wrap {
+      padding: 0 16px 12px;
+      background: var(--bg-page)
+    }
+
+    .search-box {
+      position: relative;
+      background: #FFF;
+      border-radius: 8px;
+      padding: 0 12px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: var(--shadow-card)
+    }
+
+    .search-box input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 14px;
+      color: var(--text-1);
+      font-family: inherit
+    }
+
+    .search-box input::placeholder {
+      color: var(--text-3)
+    }
+
+    .search-box svg {
+      width: 14px;
+      height: 14px;
+      color: var(--text-3);
+      flex-shrink: 0
+    }
+
+    .filter-btn {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: var(--text-3)
+    }
+
+    .filter-btn svg {
+      width: 14px;
+      height: 14px
+    }
+
+    /* ========== 设备列表 ========== */
+    .device-list {
+      padding: 0 16px 16px
+    }
+
+    .device-card {
+      background: #FFF;
+      border-radius: 14px;
+      padding: 14px 14px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: var(--shadow-card);
+      cursor: pointer;
+      transition: transform .15s
+    }
+
+    .device-card:active {
+      transform: scale(.98)
+    }
+
+    .device-thumb {
+      width: 60px;
+      height: 48px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .device-thumb svg {
+      width: 60px;
+      height: 48px
+    }
+
+    .device-body {
+      flex: 1;
+      min-width: 0
+    }
+
+    .device-name-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0
+    }
+
+    .device-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-1);
+      line-height: 1.3
+    }
+
+    /* 设备归属类型标签 */
+    .attr-tag {
+      flex-shrink: 0;
+      display: inline-block;
+      padding: 1px 8px;
+      border-radius: 8px;
+      font-size: 11px;
+      line-height: 16px;
+      font-weight: 600;
+      white-space: nowrap;
+      background: rgba(0, 0, 0, 0.04);
+      color: var(--text-2);
+      border: 1px solid #E5E6EB
+    }
+
+    .device-sn {
+      font-size: 12px;
+      color: var(--text-3);
+      margin-top: 3px;
+      line-height: 1.3
+    }
+
+    .device-status {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: var(--text-2);
+      margin-top: 5px
+    }
+
+    .device-status .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0
+    }
+
+    .dot-success {
+      background: var(--success)
+    }
+
+    .dot-offline {
+      background: #BFBFBF
+    }
+
+    .dot-warning {
+      background: #FAAD14
+    }
+
+    .dot-primary {
+      background: var(--info)
+    }
+
+    .device-arrow {
+      width: 30px;
+      height: 30px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #F4F6FA;
+      border-radius: 8px;
+      color: #BFBFBF
+    }
+
+    .device-arrow svg {
+      width: 14px;
+      height: 14px
+    }
+
+    /* ========== 悬浮按钮 ========== */
+    .fab {
+      position: absolute;
+      right: 20px;
+      bottom: 96px;
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #FF7080, #C41E29);
+      box-shadow: 0 6px 18px rgba(196, 30, 41, .35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #FFF;
+      z-index: 10
+    }
+
+    .fab svg {
+      width: 26px;
+      height: 26px
+    }
+
+    .fab::after {
+      content: "";
+      position: absolute;
+      inset: -6px;
+      border-radius: 50%;
+      border: 2px solid rgba(196, 30, 41, .18);
+      animation: ripple 1.8s ease-out infinite
+    }
+
+    @keyframes ripple {
+      0% {
+        transform: scale(.9);
+        opacity: .6
+      }
+
+      100% {
+        transform: scale(1.4);
+        opacity: 0
+      }
+    }
+
+    /* ========== 底部 Tab 栏 ========== */
+    .tab-nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 390px;
+      background: #FFF;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 6px 0 8px;
+      z-index: 50
+    }
+
+    .tab-nav-item {
+      flex: 1;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      padding: 2px 0
+    }
+
+    .tab-nav-item .icon {
+      width: 22px;
+      height: 22px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-3)
+    }
+
+    .tab-nav-item .icon svg {
+      width: 22px;
+      height: 22px
+    }
+
+    .tab-nav-item .label {
+      font-size: 11px;
+      color: var(--text-3);
+      margin-top: 2px
+    }
+
+    .tab-nav-item.active .icon {
+      color: var(--primary)
+    }
+
+    .tab-nav-item.active .label {
+      color: var(--primary);
+      font-weight: 600
+    }
+
+    .tab-nav-item .badge {
+      position: absolute;
+      top: 0;
+      right: calc(50% - 18px);
+      min-width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--primary);
+      border: 2px solid #FFF
+    }
+
+    /* ========== 底部半弹窗 ========== */
+    .sheet-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .45);
+      z-index: 100;
+      display: none;
+      align-items: flex-end;
+      justify-content: center
+    }
+
+    .sheet-overlay.show {
+      display: flex;
+      animation: fadeIn .2s ease
+    }
+
+    .sheet {
+      background: #FFF;
+      width: 100%;
+      max-width: 390px;
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
+      padding: 0 0 env(safe-area-inset-bottom, 0);
+      animation: slideUp .25s ease
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0
+      }
+
+      to {
+        opacity: 1
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(100%)
+      }
+
+      to {
+        transform: translateY(0)
+      }
+    }
+
+    .sheet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-1)
+    }
+
+    .sheet-close {
+      background: none;
+      border: none;
+      color: #BFBFBF;
+      font-size: 22px;
+      cursor: pointer;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .sheet-list {
+      padding: 6px 0
+    }
+
+    .sheet-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 18px;
+      font-size: 15px;
+      color: var(--text-1);
+      cursor: pointer;
+      border-bottom: 1px solid var(--border-light);
+      transition: background .15s
+    }
+
+    .sheet-option:last-child {
+      border-bottom: none
+    }
+
+    .sheet-option:hover {
+      background: #F7F8FA
+    }
+
+    .sheet-option .label {
+      flex: 1
+    }
+
+    .sheet-option .go-arrow {
+      color: #BFBFBF;
+      font-size: 20px;
+      line-height: 1;
+      transition: transform .2s
+    }
+
+    .sheet-option:hover .go-arrow {
+      color: var(--primary);
+      transform: translateX(2px)
+    }
+  </style>
+</head>
+
+<body>
+  <div class="phone-frame">
+
+    <!-- 顶部栏 -->
+    <div class="header">
+      <div class="bind-btn" data-action="open-sheet">
+        <svg viewBox="0 0 18 18">
+          <path d="M9 2v14M2 9h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+        </svg>
+        绑定设备
+      </div>
+      <div class="location-btn">
+        <svg viewBox="0 0 22 22">
+          <path d="M11 2C7.13 2 4 5.13 4 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="none"
+            stroke="currentColor" stroke-width="1.8" />
+          <circle cx="11" cy="9" r="3" fill="none" stroke="currentColor" stroke-width="1.8" />
+          <path d="M2 6l3-2 2 3M20 6l-3-2-2 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+            fill="none" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- Tab 筛选 -->
+    <div class="tab-bar">
+      <div class="tab-pill active">全部 <span>(3)</span></div>
+      <div class="tab-pill">在线 <span>(1)</span></div>
+      <div class="tab-pill">离线 <span>(2)</span></div>
+      <div class="tab-pill">未审核 <span>(0)</span></div>
+    </div>
+
+    <!-- 搜索栏 -->
+    <div class="search-wrap">
+      <div class="search-box">
+        <svg viewBox="0 0 16 16">
+          <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5" fill="none" />
+          <line x1="11" y1="11" x2="14.5" y2="14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+        </svg>
+        <input type="text" placeholder="搜索">
+        <button class="filter-btn">
+          <svg viewBox="0 0 16 16">
+            <path d="M2 4h12M4 8h8M6 12h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- 设备列表 -->
+    <div class="device-list">
+
+      <!-- 挖掘机 -->
+      <div class="device-card">
+        <div class="device-thumb">
+          <svg viewBox="0 0 60 48">
+            <rect x="3" y="32" width="50" height="10" rx="1.5" fill="#F0CB28" stroke="#A8841A" stroke-width=".8" />
+            <circle cx="11" cy="42" r="3" fill="#2D2D2D" />
+            <circle cx="28" cy="42" r="3" fill="#2D2D2D" />
+            <circle cx="45" cy="42" r="3" fill="#2D2D2D" />
+            <rect x="14" y="22" width="22" height="12" rx="2" fill="#F4D03F" stroke="#A8841A" stroke-width=".8" />
+            <rect x="32" y="14" width="12" height="10" rx="1" fill="#F8DC75" stroke="#A8841A" stroke-width=".8" />
+            <rect x="34" y="16" width="8" height="5" fill="#A8D8E8" />
+            <path d="M14 28 L8 12 L4 14 L12 30 Z" fill="#E5A823" stroke="#A8841A" stroke-width=".6" />
+            <path d="M8 12 L4 8 L1 9 L4 14 Z" fill="#E5A823" stroke="#A8841A" stroke-width=".6" />
+            <path d="M1 9 L-2 13 L0 16 L4 14 Z" fill="#8B6914" stroke="#5C4410" stroke-width=".6" />
+          </svg>
+        </div>
+        <div class="device-body">
+          <div class="device-name-row">
+            <div class="device-name">挖掘机</div>
+            <span class="attr-tag">自有</span>
+          </div>
+          <div class="device-sn">SY005NCD13058</div>
+          <div class="device-status">
+            <span class="dot dot-success"></span>
+            <span class="state-text">工作</span>
+          </div>
+        </div>
+        <div class="device-arrow">
+          <svg viewBox="0 0 16 16">
+            <path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- 平地机 -->
+      <div class="device-card">
+        <div class="device-thumb">
+          <svg viewBox="0 0 60 48">
+            <rect x="3" y="28" width="48" height="10" rx="1.5" fill="#E89B25" stroke="#A87114" stroke-width=".8" />
+            <circle cx="10" cy="38" r="3.5" fill="#2D2D2D" />
+            <circle cx="22" cy="38" r="3.5" fill="#2D2D2D" />
+            <circle cx="34" cy="38" r="3.5" fill="#2D2D2D" />
+            <circle cx="44" cy="38" r="3.5" fill="#2D2D2D" />
+            <rect x="22" y="18" width="14" height="12" rx="1" fill="#F5B041" stroke="#A87114" stroke-width=".8" />
+            <rect x="24" y="20" width="10" height="6" fill="#A8D8E8" />
+            <rect x="48" y="22" width="9" height="14" rx="1" fill="#D88B1C" stroke="#A87114" stroke-width=".8" />
+            <rect x="6" y="22" width="14" height="8" rx="1" fill="#F5B041" stroke="#A87114" stroke-width=".8" />
+          </svg>
+        </div>
+        <div class="device-body">
+          <div class="device-name-row">
+            <div class="device-name">平地机</div>
+            <span class="attr-tag">租赁</span>
+          </div>
+          <div class="device-sn">PY5519CB0458</div>
+          <div class="device-status">
+            <span class="dot dot-offline"></span>
+            <span class="state-text">离线</span>
+          </div>
+        </div>
+        <div class="device-arrow">
+          <svg viewBox="0 0 16 16">
+            <path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- 履带起重机 -->
+      <div class="device-card">
+        <div class="device-thumb">
+          <svg viewBox="0 0 60 48">
+            <rect x="8" y="34" width="34" height="9" rx="1.5" fill="#E94B35" stroke="#A02D1C" stroke-width=".8" />
+            <circle cx="14" cy="43" r="3" fill="#2D2D2D" />
+            <circle cx="25" cy="43" r="3" fill="#2D2D2D" />
+            <circle cx="36" cy="43" r="3" fill="#2D2D2D" />
+            <rect x="14" y="26" width="22" height="10" rx="1.5" fill="#FF5C45" stroke="#A02D1C" stroke-width=".8" />
+            <rect x="16" y="28" width="8" height="5" fill="#A8D8E8" />
+            <path d="M22 26 L20 4 L22 4 L24 26 Z" fill="#FF5C45" stroke="#A02D1C" stroke-width=".6" />
+            <rect x="19" y="2" width="3" height="3" fill="#A02D1C" />
+            <line x1="20.5" y1="6" x2="20.5" y2="14" stroke="#333" stroke-width="1" />
+            <path d="M17 14 L24 14 L22.5 18 L18.5 18 Z" fill="#444" stroke="#222" stroke-width=".5" />
+          </svg>
+        </div>
+        <div class="device-body">
+          <div class="device-name-row">
+            <div class="device-name">履带起重机</div>
+            <span class="attr-tag">分包</span>
+          </div>
+          <div class="device-sn">CC0150CE0678</div>
+          <div class="device-status">
+            <span class="dot dot-offline"></span>
+            <span class="state-text">上电</span>
+          </div>
+        </div>
+        <div class="device-arrow">
+          <svg viewBox="0 0 16 16">
+            <path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 悬浮按钮 -->
+    <div class="fab">
+      <svg viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9" fill="none" stroke="#FFF" stroke-width="2" />
+        <circle cx="12" cy="12" r="4" fill="none" stroke="#FFF" stroke-width="2" />
+        <circle cx="12" cy="12" r="1.5" fill="#FFF" />
+      </svg>
+    </div>
+
+    <!-- 底部 Tab 栏 -->
+    <nav class="tab-nav">
+      <div class="tab-nav-item" data-href="设备管理列表.html">
+        <div class="icon">
+          <svg viewBox="0 0 22 22">
+            <path d="M3 11l8-7 8 7v9a1 1 0 0 1-1 1h-4v-6H8v6H4a1 1 0 0 1-1-1v-9z" fill="none" stroke="currentColor"
+              stroke-width="1.6" stroke-linejoin="round" />
+          </svg>
+        </div>
+        <div class="label">首页</div>
+      </div>
+      <div class="tab-nav-item" data-href="设备管理列表.html">
+        <div class="icon">
+          <svg viewBox="0 0 22 22">
+            <circle cx="11" cy="9" r="3.5" fill="none" stroke="currentColor" stroke-width="1.6" />
+            <circle cx="6" cy="14" r="2.5" fill="none" stroke="currentColor" stroke-width="1.6" />
+            <circle cx="16" cy="14" r="2.5" fill="none" stroke="currentColor" stroke-width="1.6" />
+            <line x1="8" y1="14" x2="14" y2="14" stroke="currentColor" stroke-width="1.6" />
+          </svg>
+        </div>
+        <div class="label">圈子</div>
+      </div>
+      <div class="tab-nav-item active" data-href="设备管理列表.html">
+        <div class="icon">
+          <svg viewBox="0 0 22 22">
+            <rect x="2" y="9" width="18" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8" />
+            <circle cx="8" cy="14" r="1.5" fill="currentColor" />
+            <circle cx="14" cy="14" r="1.5" fill="currentColor" />
+            <path d="M8 9V6a3 3 0 0 1 6 0v3" fill="none" stroke="currentColor" stroke-width="1.8" />
+          </svg>
+        </div>
+        <div class="label">设备</div>
+      </div>
+      <div class="tab-nav-item" data-href="设备管理列表.html">
+        <div class="icon">
+          <svg viewBox="0 0 22 22">
+            <path d="M11 2L3 5v6c0 5 3.5 8 7 9 3.5-1 7-4 7-9V5l-8-3z" fill="none" stroke="currentColor"
+              stroke-width="1.6" stroke-linejoin="round" />
+            <path d="M7.5 11l2.5 2.5L15 8" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+        </div>
+        <div class="label">审核</div>
+      </div>
+      <div class="tab-nav-item" data-href="设备管理列表.html">
+        <div class="icon">
+          <svg viewBox="0 0 22 22">
+            <circle cx="11" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="1.6" />
+            <path d="M3 20c0-4 3.5-7 8-7s8 3 8 7" fill="none" stroke="currentColor" stroke-width="1.6"
+              stroke-linecap="round" />
+          </svg>
+        </div>
+        <div class="label">我</div>
+        <span class="badge"></span>
+      </div>
+    </nav>
+
+  </div>
+
+  <!-- 绑定设备 底部半弹窗 -->
+  <div class="sheet-overlay" id="bind-sheet">
+    <div class="sheet">
+      <div class="sheet-header">
+        <span>绑定设备</span>
+        <button class="sheet-close" data-action="close-sheet" aria-label="关闭">×</button>
+      </div>
+      <div class="sheet-list">
+        <a class="sheet-option" href="设备绑定.html">
+          <span class="label">三一设备绑定</span>
+          <span class="go-arrow">›</span>
+        </a>
+        <a class="sheet-option" href="第三方设备绑定.html">
+          <span class="label">第三方设备绑定</span>
+          <span class="go-arrow">›</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 状态 -> 所属Tab分组映射（静态，不随点击改变）
+    var STATE_GROUP = {
+      '工作': '在线', '在线': '在线', '离线': '离线', '停机': '离线', '上电': '未审核'
+    };
+
+    // 当前选中的 Tab 过滤分组
+    var currentGroup = '全部';
+
+    function getStateGroup(text) {
+      return STATE_GROUP[text] || null;
+    }
+
+    // 按当前 Tab 分组过滤设备卡片
+    function applyFilter() {
+      var cards = document.querySelectorAll('.device-card');
+      for (var i = 0; i < cards.length; i++) {
+        var text = cards[i].querySelector('.state-text').textContent.trim();
+        var group = getStateGroup(text);
+        var show = (currentGroup === '全部') || (group === currentGroup);
+        cards[i].style.display = show ? '' : 'none';
+      }
+    }
+
+    // 事件委托：点击 Tab 切换激活态 + 过滤列表
+    document.addEventListener('click', function (e) {
+      // 顶部"绑定设备"按钮
+      var openBtn = e.target.closest ? e.target.closest('[data-action="open-sheet"]') : null;
+      if (openBtn) { openSheet(); return; }
+
+      // 关闭弹窗按钮 / 点击遮罩
+      if (e.target.closest && e.target.closest('[data-action="close-sheet"]')) {
+        closeSheet(); return;
+      }
+      if (e.target.classList && e.target.classList.contains('sheet-overlay')) {
+        closeSheet(); return;
+      }
+
+      // 弹窗内选项：a 标签原生跳转，这里只需阻止关闭弹窗，不拦截跳转
+      var opt = e.target.closest ? e.target.closest('.sheet-option') : null;
+      if (opt) {
+        // 不调用 closeSheet，让浏览器正常跳转；若跳转失败则关闭弹窗兜底
+        setTimeout(closeSheet, 500);
+        return;
+      }
+
+      // Tab 过滤
+      var pill = e.target.closest ? e.target.closest('.tab-pill') : null;
+      if (!pill) return;
+      document.querySelectorAll('.tab-pill').forEach(function (p) { p.classList.remove('active'); });
+      pill.classList.add('active');
+      currentGroup = pill.firstChild.textContent.replace(/[（(].*?[）)]/g, '').trim() || '全部';
+      applyFilter();
+    });
+
+    // 弹窗控制
+    function openSheet() {
+      var el = document.getElementById('bind-sheet');
+      el.classList.add('show');
+      el.style.display = 'flex';
+    }
+    function closeSheet() {
+      var el = document.getElementById('bind-sheet');
+      el.classList.remove('show');
+      setTimeout(function () { el.style.display = 'none'; }, 200);
+    }
+
+    // 按 ESC 关闭弹窗
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeSheet();
+    });
+
+    // 底部 Tab 导航联动
+    document.querySelectorAll('.tab-nav-item').forEach(function (item) {
+      item.addEventListener('click', function () {
+        var href = this.getAttribute('data-href');
+        if (href) { window.location.href = href; return; }
+        // 无跳转目标时仅切换激活态
+        document.querySelectorAll('.tab-nav-item').forEach(function (i) { i.classList.remove('active'); });
+        this.classList.add('active');
+      });
+    });
+  </script>
+</body>
+
+</html>
