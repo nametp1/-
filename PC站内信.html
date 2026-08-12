@@ -1,0 +1,2886 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: #f5f6f8;
+            color: #333;
+        }
+
+        .app-wrapper {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .main-wrapper {
+            display: flex;
+            flex: 1;
+        }
+
+        /* 顶部导航栏 */
+        .navbar {
+            height: 50px;
+            background: #fff;
+            border-bottom: 1px solid #e8e8e8;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            flex-shrink: 0;
+        }
+
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: #E60012;
+            letter-spacing: -0.5px;
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .navbar-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .navbar-item:hover {
+            color: #E60012;
+        }
+
+        .navbar-msg {
+            color: #E60012;
+            position: relative;
+        }
+
+        /* 消息铃铛未读角标 */
+        .bell-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .msg-badge {
+            position: absolute;
+            top: -7px;
+            right: -10px;
+            min-width: 16px;
+            height: 16px;
+            padding: 0 4px;
+            background: #E60012;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 600;
+            line-height: 16px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 0 0 2px #fff;
+            display: none;
+            z-index: 1001;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+
+        .msg-badge.show {
+            display: block;
+        }
+
+        /* 消息弹出下拉面板 */
+        .msg-popover {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: -8px;
+            width: 360px;
+            background: #ffffff;
+            border: 1px solid #eaeaea;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-6px);
+            transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+            z-index: 999;
+            overflow: hidden;
+        }
+
+        .navbar-msg:hover .msg-popover,
+        .msg-popover:hover {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        /* 提示箭头 */
+        .msg-popover::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            right: 22px;
+            width: 12px;
+            height: 12px;
+            background: #ffffff;
+            border-left: 1px solid #eaeaea;
+            border-top: 1px solid #eaeaea;
+            transform: rotate(45deg);
+        }
+
+        .msg-popover-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px 10px 16px;
+            border-bottom: 1px solid #f3f3f3;
+        }
+
+        .msg-popover-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f1f1f;
+        }
+
+        .msg-popover-action {
+            font-size: 12px;
+            color: #E60012;
+            cursor: pointer;
+        }
+
+        .msg-popover-list {
+            max-height: 360px;
+            overflow-y: auto;
+        }
+
+        .msg-popover-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px 16px;
+            cursor: pointer;
+            position: relative;
+            transition: background 0.15s;
+        }
+
+        .msg-popover-item:hover {
+            background: #fafafa;
+        }
+
+        .msg-popover-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 56px;
+            right: 16px;
+            bottom: 0;
+            height: 0.5px;
+            background: #f0f0f0;
+        }
+
+        .msg-popover-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .msg-popover-icon.bg-monitor { background: #e6f7ff; color: #1890ff; }
+        .msg-popover-icon.bg-service { background: #fff7e6; color: #fa8c16; }
+        .msg-popover-icon.bg-business { background: #f6ffed; color: #52c41a; }
+        .msg-popover-icon.bg-feedback { background: #fff0f0; color: #e60012; }
+
+        .msg-popover-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .msg-popover-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+            gap: 8px;
+        }
+
+        .msg-popover-category {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1f1f1f;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .msg-popover-time {
+            font-size: 11px;
+            color: #bfbfbf;
+            flex-shrink: 0;
+        }
+
+        .msg-popover-summary {
+            font-size: 12px;
+            color: #777;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .msg-popover-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #E60012;
+            flex-shrink: 0;
+        }
+
+        .msg-popover-footer {
+            padding: 10px 16px;
+            text-align: center;
+            font-size: 13px;
+            color: #1890ff;
+            cursor: pointer;
+            border-top: 1px solid #f3f3f3;
+            background: #fcfcfc;
+            transition: background 0.15s;
+        }
+
+        .msg-popover-footer:hover {
+            background: #f5f9ff;
+        }
+
+        /* 完整消息中心弹层 */
+        .msg-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .msg-overlay.show {
+            display: flex;
+        }
+
+        .msg-overlay-panel {
+            width: 960px;
+            max-width: 92vw;
+            height: 640px;
+            max-height: 86vh;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .msg-overlay-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .msg-overlay-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f1f1f;
+        }
+
+        .msg-overlay-close {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            cursor: pointer;
+            color: #999;
+            transition: background 0.15s;
+        }
+
+        .msg-overlay-close:hover {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .msg-overlay-body {
+            flex: 1;
+            display: flex;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        /* 左侧分类 Tab */
+        .msg-sidebar {
+            width: 180px;
+            background: #f7f8fa;
+            border-right: 1px solid #ececec;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .msg-sidebar-tab {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #333;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+            transition: background 0.15s;
+        }
+
+        .msg-sidebar-tab:hover {
+            background: #eef0f3;
+        }
+
+        .msg-sidebar-tab.active {
+            background: #fff;
+            border-left-color: #1677ff;
+            color: #1677ff;
+            font-weight: 600;
+        }
+
+        .msg-sidebar-tab .tab-name {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .msg-sidebar-tab .tab-count {
+            min-width: 18px;
+            height: 18px;
+            padding: 0 5px;
+            background: #E60012;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .msg-sidebar-tab:not(.active) .tab-count {
+            background: #E60012;
+            color: #fff;
+        }
+
+        /* 右侧主区 */
+        .msg-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .msg-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 20px;
+            border-bottom: 1px solid #f0f0f0;
+            background: #fff;
+            flex-wrap: wrap;
+        }
+
+        .msg-date {
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            padding: 0 10px;
+            height: 32px;
+            font-size: 13px;
+            color: #333;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        .msg-date input {
+            border: 0;
+            outline: none;
+            font-size: 13px;
+            color: #333;
+            width: 90px;
+            background: transparent;
+        }
+
+        .msg-date-sep {
+            color: #bfbfbf;
+            margin: 0 4px;
+        }
+
+        .msg-btn {
+            height: 32px;
+            padding: 0 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            border: 1px solid #d9d9d9;
+            background: #fff;
+            color: #333;
+            transition: all 0.15s;
+        }
+
+        .msg-btn:hover {
+            border-color: #1677ff;
+            color: #1677ff;
+        }
+
+        .msg-btn.primary {
+            background: #fff;
+            border-color: #d9d9d9;
+            color: #333;
+        }
+
+        .msg-checkbox {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #333;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .msg-checkbox input {
+            accent-color: #1677ff;
+            width: 14px;
+            height: 14px;
+            cursor: pointer;
+        }
+
+        /* 消息列表 */
+        .msg-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 20px 20px 20px;
+            background: #fff;
+        }
+
+        .msg-list-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 14px 16px;
+            border: 1px solid #f0f0f0;
+            border-radius: 8px;
+            background: #fff;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: box-shadow 0.15s, border-color 0.15s;
+        }
+
+        .msg-list-item:hover {
+            border-color: #ffd6d6;
+            box-shadow: 0 4px 12px rgba(230, 0, 18, 0.06);
+        }
+
+        .msg-list-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-right: 12px;
+        }
+
+        .msg-list-icon.bg-monitor { background: #e6f7ff; color: #1890ff; }
+        .msg-list-icon.bg-service { background: #fff7e6; color: #fa8c16; }
+        .msg-list-icon.bg-business { background: #f6ffed; color: #52c41a; }
+        .msg-list-icon.bg-feedback { background: #fff0f0; color: #e60012; }
+
+        .msg-list-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .msg-list-row1 {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            gap: 10px;
+        }
+
+        .msg-list-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f1f1f;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .msg-list-time {
+            font-size: 12px;
+            color: #bfbfbf;
+            flex-shrink: 0;
+        }
+
+        .msg-list-content {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+            word-break: break-all;
+        }
+
+        .msg-list-link {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #1677ff;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .msg-list-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #E60012;
+            display: inline-block;
+            flex-shrink: 0;
+        }
+
+        /* 空状态 */
+        .msg-empty {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 13px;
+            background: #fff;
+        }
+
+        .msg-empty-illus {
+            width: 160px;
+            height: 160px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .msg-empty-illus svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .msg-empty-text {
+            font-size: 13px;
+            color: #8c8c8c;
+        }
+
+        /* 分页加载 / 到底提示 */
+        .msg-loadmore {
+            text-align: center;
+            padding: 14px 0 6px 0;
+            font-size: 12px;
+            color: #999;
+            user-select: none;
+        }
+
+        .msg-loadmore .loading-dots {
+            display: inline-flex;
+            gap: 4px;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
+        .msg-loadmore .loading-dots i {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #bfbfbf;
+            animation: msgBlink 1s infinite ease-in-out;
+        }
+
+        .msg-loadmore .loading-dots i:nth-child(2) { animation-delay: 0.2s; }
+        .msg-loadmore .loading-dots i:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes msgBlink {
+            0%, 80%, 100% { opacity: 0.3; }
+            40% { opacity: 1; }
+        }
+
+        .navbar-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            overflow: hidden;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 180px;
+            background: #fff;
+            border-right: 1px solid #e8e8e8;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 8px 0;
+        }
+
+        .sidebar-item {
+            position: relative;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 18px;
+            font-size: 14px;
+            color: #666;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .sidebar-link:hover {
+            color: #E60012;
+            background: #fff5f5;
+        }
+
+        .sidebar-item.active > .sidebar-link,
+        .sidebar-link.active {
+            background: transparent;
+            color: #E60012;
+            font-weight: 500;
+        }
+
+        .sidebar-item.active > .sidebar-link:hover,
+        .sidebar-link.active:hover {
+            background: #fff5f5;
+            color: #E60012;
+        }
+
+        .sidebar-submenu {
+            list-style: none;
+            padding-left: 36px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        .sidebar-item.expanded > .sidebar-submenu { max-height: 800px; }
+        .sidebar-submenu .sidebar-link {
+            font-size: 12px;
+            color: #666;
+            padding: 6px 12px;
+        }
+        .has-submenu .sidebar-link { cursor: pointer; }
+        .has-submenu .sidebar-link::after {
+            content: '⌄';
+            font-size: 10px;
+            color: #b0b0b0;
+            margin-left: auto;
+            transition: transform 0.2s;
+        }
+        .has-submenu.expanded .sidebar-link::after { transform: rotate(180deg); }
+
+        .sidebar-icon {
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            background: #f5f6f8;
+        }
+
+        /* 个人信息区块 */
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 14px;
+        }
+
+        .info-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 24px 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            row-gap: 22px;
+            column-gap: 32px;
+        }
+
+        .info-item-label {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 6px;
+        }
+
+        .info-item-value {
+            font-size: 14px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .edit-icon {
+            color: #1677ff;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 2px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .bind-link {
+            color: #E60012;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            margin-left: 16px;
+        }
+
+        .bind-link:hover {
+            text-decoration: underline;
+        }
+
+        /* 租户信息区块 */
+        .tenant-block {
+            background: #fff;
+            border-radius: 8px;
+            padding: 22px 28px;
+            margin-bottom: 18px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .tenant-block-title {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 14px;
+        }
+
+        .tenant-current {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            padding: 16px 20px;
+            min-width: 280px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .tenant-list {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .tenant-card {
+            flex: 1 1 calc(50% - 8px);
+            min-width: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            padding: 16px 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .tenant-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tenant-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .tenant-avatar.hex {
+            background: linear-gradient(135deg, #e6f0ff, #c5d9ff);
+            color: #1677ff;
+        }
+
+        .tenant-avatar.person {
+            background: linear-gradient(135deg, #e8f3ff, #b8d6ff);
+            color: #1677ff;
+        }
+
+        .tenant-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .tenant-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .tenant-role {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .tenant-badge {
+            font-size: 12px;
+            color: #E60012;
+            border: 1px solid #E60012;
+            border-radius: 12px;
+            padding: 2px 10px;
+            flex-shrink: 0;
+        }
+
+        .tenant-switch {
+            font-size: 13px;
+            color: #666;
+            border: 1px solid #d9d9d9;
+            border-radius: 14px;
+            padding: 3px 14px;
+            cursor: pointer;
+            background: #fff;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .tenant-switch:hover {
+            color: #E60012;
+            border-color: #E60012;
+        }
+
+        /* 绑定邮箱弹窗 */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4); z-index: 1000;
+            display: none; align-items: center; justify-content: center;
+            animation: fadeIn 0.2s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .modal-overlay.show { display: flex; }
+        .modal-box {
+            background: #fff; border-radius: 12px; width: 400px;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.15); overflow: hidden;
+            animation: slideUp 0.25s ease;
+        }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 20px 24px; border-bottom: 1px solid #f0f0f0;
+            font-size: 16px; font-weight: 600; color: #222;
+        }
+        .modal-close {
+            width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; cursor: pointer; color: #999; font-size: 18px;
+            transition: all 0.2s; line-height: 1;
+        }
+        .modal-close:hover { background: #f5f5f5; color: #333; }
+        .modal-body { padding: 24px; }
+        .modal-body .form-item { margin-bottom: 20px; }
+        .modal-body .form-item:last-child { margin-bottom: 0; }
+        .form-item label {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 13px; font-weight: 500; color: #555; margin-bottom: 8px;
+        }
+        .form-item .input-row { display: flex; gap: 10px; }
+        .form-item .input-wrap {
+            flex: 1; position: relative;
+        }
+        .form-item .input-wrap input {
+            width: 100%; height: 40px; border: 1px solid #d9d9d9; border-radius: 8px;
+            padding: 0 12px; font-size: 14px; outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-item .input-wrap input:focus {
+            border-color: #E60012;
+            box-shadow: 0 0 0 3px rgba(230,0,18,0.08);
+        }
+        .form-item .input-wrap input::placeholder { color: #ccc; }
+        .form-item .code-btn {
+            height: 40px; padding: 0 18px; background: #fff; color: #E60012;
+            border: 1px solid #E60012; border-radius: 8px; font-size: 13px;
+            cursor: pointer; white-space: nowrap; transition: all 0.2s; flex-shrink: 0; font-weight: 500;
+        }
+        .form-item .code-btn:hover { background: #fff5f5; }
+        .form-item .code-btn:disabled {
+            color: #bbb; border-color: #e8e8e8; cursor: not-allowed;
+            background: #fafafa; font-weight: 400;
+        }
+        .modal-footer {
+            display: flex; justify-content: flex-end; gap: 10px;
+            padding: 0 24px 20px;
+        }
+        .modal-footer .btn {
+            height: 38px; padding: 0 22px; border-radius: 8px; font-size: 14px;
+            cursor: pointer; transition: all 0.2s;
+            border: 1px solid #d9d9d9; background: #fff; color: #666;
+        }
+        .modal-footer .btn:hover { border-color: #E60012; color: #E60012; }
+        .modal-footer .btn.primary {
+            background: #E60012; color: #fff; border-color: #E60012; font-weight: 500;
+        }
+        .modal-footer .btn.primary:hover { background: #cc0010; border-color: #cc0010; }
+        .modal-footer .btn.primary:disabled {
+            background: #f0f0f0; color: #bbb; border-color: #e8e8e8; cursor: not-allowed;
+        }
+        .modal-footer .btn.primary:disabled:hover {
+            background: #f0f0f0; color: #bbb; border-color: #e8e8e8;
+        }
+        /* ===== 手机号绑定弹窗（首页风格）===== */
+        #bindPhoneModal .modal-box, #rebindPhoneModal .modal-box {
+            width: 440px; border-radius: 16px; overflow: hidden;
+        }
+        #bindPhoneModal .modal-body, #rebindPhoneModal .modal-body {
+            padding: 32px 36px 28px;
+        }
+        .phone-modal-icon {
+            width: 52px; height: 52px;
+            margin: 0 auto 14px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #ffeaea, #fff0f0);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px;
+        }
+        .phone-modal-tip {
+            text-align: center;
+            color: #555;
+            font-size: 14px;
+            margin-bottom: 14px;
+        }
+        .phone-modal-benefits {
+            display: flex; flex-direction: column; gap: 8px;
+            margin-bottom: 20px;
+            padding: 10px 14px;
+            background: #f9fafb;
+            border-radius: 10px;
+        }
+        .phone-benefit-item {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 12px; color: #666;
+        }
+        /* 手机弹窗输入样式（首页风格） */
+        #bindPhoneModal .form-item, #rebindPhoneModal .form-item { margin-bottom: 16px; }
+        #bindPhoneModal .form-item label, #rebindPhoneModal .form-item label {
+            display: flex; align-items: center;
+            font-size: 12px; font-weight: 500; color: #666;
+            margin-bottom: 6px; padding-left: 2px;
+        }
+        #bindPhoneModal .input-row, #rebindPhoneModal .input-row {
+            display: flex; align-items: stretch; height: 46px; gap: 0;
+            border: 1.5px solid #e8e8e8; border-radius: 10px;
+            background: #fff; transition: all 0.2s ease;
+        }
+        #bindPhoneModal .input-row:focus-within, #rebindPhoneModal .input-row:focus-within {
+            border-color: #E60012;
+            box-shadow: 0 0 0 3px rgba(230,0,18,0.06);
+        }
+        #bindPhoneModal .input-row .input-wrap, #rebindPhoneModal .input-row .input-wrap { flex: 1; }
+        #bindPhoneModal .input-row .input-wrap input, #rebindPhoneModal .input-row .input-wrap input {
+            width: 100%; height: 100%; border: none; outline: none;
+            padding: 0 16px; font-size: 14px; color: #222;
+            background: transparent; border-radius: 0 10px 10px 0;
+        }
+        #bindPhoneModal .input-row .input-wrap input::placeholder,
+        #rebindPhoneModal .input-row .input-wrap input::placeholder { color: #c0c0c0; }
+        /* 区号选择器（首页风格） */
+        #bindPhoneModal .area-code-wrap, #rebindPhoneModal .area-code-wrap { position: relative; flex-shrink: 0; }
+        #bindPhoneModal .area-code, #rebindPhoneModal .area-code {
+            display: flex; align-items: center; padding: 0 16px;
+            border-right: 1px solid #eee; background: #fafafa;
+            color: #333; font-size: 14px; font-weight: 500;
+            cursor: pointer; gap: 6px; border-radius: 10px 0 0 10px;
+            transition: background 0.15s; height: 100%;
+        }
+        #bindPhoneModal .area-code:hover, #rebindPhoneModal .area-code:hover { background: #f0f0f0; }
+        #bindPhoneModal .area-code .caret, #rebindPhoneModal .area-code .caret {
+            color: #c0c0c0; font-size: 10px; transition: transform 0.2s;
+        }
+        #bindPhoneModal .area-code.open .caret, #rebindPhoneModal .area-code.open .caret { transform: rotate(180deg); }
+        #bindPhoneModal .area-code-dropdown, #rebindPhoneModal .area-code-dropdown {
+            display: none; position: absolute; top: calc(100% + 6px); left: 0;
+            width: 320px; max-height: 264px; overflow-y: auto;
+            background: #fff; border: 1px solid #eee; border-radius: 12px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.12); z-index: 2000;
+        }
+        #bindPhoneModal .area-code-dropdown.open, #rebindPhoneModal .area-code-dropdown.open { display: block; }
+        #bindPhoneModal .area-code-dropdown .search-box, #rebindPhoneModal .area-code-dropdown .search-box {
+            padding: 10px 12px; border-bottom: 1px solid #f0f0f0;
+            position: sticky; top: 0; background: #fff; z-index: 1;
+            border-radius: 12px 12px 0 0;
+        }
+        #bindPhoneModal .area-code-dropdown .search-box input,
+        #rebindPhoneModal .area-code-dropdown .search-box input {
+            width: 100%; height: 32px; border: 1.5px solid #e8e8e8;
+            border-radius: 8px; padding: 0 10px; font-size: 13px;
+            outline: none; background: #fafafa;
+        }
+        #bindPhoneModal .area-code-dropdown .search-box input:focus,
+        #rebindPhoneModal .area-code-dropdown .search-box input:focus { border-color: #E60012; background: #fff; }
+        #bindPhoneModal .area-code-dropdown .country-item,
+        #rebindPhoneModal .area-code-dropdown .country-item {
+            display: flex; align-items: center; height: 40px; padding: 0 14px;
+            font-size: 13px; color: #333; cursor: pointer; gap: 10px; transition: all 0.12s;
+        }
+        #bindPhoneModal .area-code-dropdown .country-item:hover,
+        #rebindPhoneModal .area-code-dropdown .country-item:hover { background: #fdf2f2; }
+        #bindPhoneModal .area-code-dropdown .country-item.active,
+        #rebindPhoneModal .area-code-dropdown .country-item.active {
+            color: #E60012; font-weight: 600; background: #fff5f5;
+        }
+        #bindPhoneModal .area-code-dropdown .country-item .code,
+        #rebindPhoneModal .area-code-dropdown .country-item .code { color: #999; margin-left: auto; font-weight: 500; }
+        /* 验证码组件 */
+        #bindPhoneModal .code-row, #rebindPhoneModal .code-row {
+            display: flex; align-items: stretch; gap: 0;
+        }
+        #bindPhoneModal .code-row .input-row, #rebindPhoneModal .code-row .input-row { flex: 1; }
+        #bindPhoneModal .code-btn, #rebindPhoneModal .code-btn {
+            height: 46px; border: 1.5px solid #e8e8e8;
+            border-radius: 10px; background: #f5f5f5;
+            color: #b0b0b0; padding: 0 20px; font-size: 14px;
+            margin-left: 10px; cursor: not-allowed;
+            white-space: nowrap; flex-shrink: 0; font-weight: 500;
+            transition: all 0.25s;
+        }
+        #bindPhoneModal .code-btn.active, #rebindPhoneModal .code-btn.active {
+            background: #fff; color: #E60012; border-color: #E60012;
+            cursor: pointer; box-shadow: 0 2px 8px rgba(230,0,18,0.12);
+        }
+        #bindPhoneModal .code-btn.active:hover, #rebindPhoneModal .code-btn.active:hover {
+            background: #fff5f5; box-shadow: 0 4px 12px rgba(230,0,18,0.18);
+        }
+        /* 确认按钮 */
+        #bindPhoneModal .confirm-btn, #rebindPhoneModal .confirm-btn {
+            width: 100%; height: 48px; border: none; border-radius: 10px;
+            background: #f0f0f0; color: #b0b0b0; font-size: 16px;
+            font-weight: 600; cursor: not-allowed;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: 6px;
+        }
+        #bindPhoneModal .confirm-btn.active, #rebindPhoneModal .confirm-btn.active {
+            background: linear-gradient(135deg, #e60012, #d40010);
+            color: #fff; cursor: pointer;
+            box-shadow: 0 4px 16px rgba(230,0,18,0.3);
+        }
+        #bindPhoneModal .confirm-btn.active:hover, #rebindPhoneModal .confirm-btn.active:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(230,0,18,0.4);
+        }
+        /* 隐藏手机弹窗的footer */
+        #bindPhoneModal .modal-footer, #rebindPhoneModal .modal-footer { display: none; }
+
+        /* 角色选择弹窗 */
+        .role-mask {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+            display: none; align-items: center; justify-content: center;
+            z-index: 2000;
+            animation: fadeIn 0.25s ease;
+        }
+        .role-mask.show { display: flex; }
+        .role-modal-box {
+            width: 620px;
+            background: linear-gradient(135deg, #f7f9fc, #ffffff);
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+            padding: 28px 32px 32px;
+            position: relative;
+            animation: slideUpRole 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+        @keyframes slideUpRole {
+            from { opacity: 0; transform: translateY(30px) scale(0.96); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .role-modal-close-btn {
+            position: absolute; top: 14px; right: 16px;
+            width: 28px; height: 28px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: #b0b0b0; cursor: pointer; transition: all 0.2s;
+            background: transparent; border: none;
+        }
+        .role-modal-close-btn:hover { background: #f5f5f5; color: #333; }
+        .role-modal-title {
+            text-align: center;
+            font-size: 18px; font-weight: 600; color: #333;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+        .role-welcome {
+            text-align: center;
+            font-size: 13px; color: #999;
+            margin-bottom: 22px;
+            line-height: 1.5;
+        }
+        .role-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+        .role-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 20px 14px 18px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+            position: relative;
+            overflow: hidden;
+        }
+        .role-card::before {
+            content: ""; position: absolute; inset: 0;
+            background: var(--card-bg);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 0;
+        }
+        .role-card.active {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 28px rgba(0,0,0,0.12);
+            border-color: var(--card-color);
+        }
+        .role-card.active::before { opacity: 0.06; }
+        .role-card > * { position: relative; z-index: 1; }
+        .role-card-avatar {
+            width: 60px; height: 60px;
+            margin: 0 auto 12px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            display: flex; align-items: center; justify-content: center;
+            color: #fff;
+            font-size: 28px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+        }
+        .role-card-name {
+            font-size: 14px; font-weight: 700;
+            color: var(--card-color);
+            margin-bottom: 6px;
+        }
+        .role-card-desc {
+            font-size: 12px;
+            color: #888;
+        }
+        .role-confirm-btn {
+            display: block;
+            width: 200px; height: 38px;
+            margin: 22px auto 0;
+            border: none; border-radius: 19px;
+            background: linear-gradient(135deg, #e60012, #d40010);
+            color: #fff;
+            font-size: 14px; font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 4px 16px rgba(230,0,18,0.3);
+            cursor: pointer;
+        }
+        .role-confirm-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(230,0,18,0.4);
+        }
+        /* 角色二次确认弹窗 */
+        .confirm-mask {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.55);
+            backdrop-filter: blur(6px);
+            display: none; align-items: center; justify-content: center;
+            z-index: 2100;
+            animation: fadeIn 0.2s ease;
+        }
+        .confirm-mask.show { display: flex; }
+        .confirm-dialog {
+            width: 380px;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+            animation: slideUpRole 0.3s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+        .confirm-dialog-body {
+            padding: 32px 28px 20px;
+            text-align: center;
+        }
+        .confirm-icon {
+            width: 56px; height: 56px;
+            margin: 0 auto 16px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fff5f5, #ffeaea);
+            display: flex; align-items: center; justify-content: center;
+            color: #e60012; font-size: 28px;
+        }
+        .confirm-title {
+            font-size: 16px; font-weight: 600; color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+        .confirm-text {
+            font-size: 13px; color: #888; line-height: 1.6;
+        }
+        .confirm-text strong { color: #e60012; }
+        .confirm-actions {
+            display: flex; border-top: 1px solid #f0f0f0;
+        }
+        .confirm-actions button {
+            flex: 1; height: 48px;
+            border: none; background: #fff;
+            font-size: 14px;
+            transition: background 0.15s;
+        }
+        .confirm-actions button:hover { background: #fafafa; }
+        .confirm-cancel { color: #888; border-right: 1px solid #f0f0f0 !important; }
+        .confirm-ok { color: #e60012; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="app-wrapper">
+        <!-- 顶部导航 -->
+        <header class="navbar">
+            <div class="navbar-left">
+                <div class="logo">SANY</div>
+            </div>
+            <div class="navbar-right">
+                <div class="navbar-item navbar-msg">
+                    <span class="bell-wrap">
+                        <svg class="navbar-bell" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                        </svg>
+                        <span class="msg-badge" id="msg-badge">0</span>
+                    </span>
+                    <span>消息</span>
+                    <!-- 悬停下拉：最近 5 条消息 -->
+                    <div class="msg-popover" id="msg-popover">
+                        <div class="msg-popover-header">
+                            <span class="msg-popover-title">消息通知</span>
+                            <span class="msg-popover-action" onclick="markAllRead(event)">全部已读</span>
+                        </div>
+                        <div class="msg-popover-list" id="msg-popover-list">
+                            <!-- 动态填充 5 条最近消息 -->
+                        </div>
+                        <div class="msg-popover-footer" onclick="openMsgOverlay(event)">
+                            查看更多 ›
+                        </div>
+                    </div>
+                </div>
+                <div class="navbar-item" onclick="location.href='个人中心.html'" style="cursor:pointer;">
+                    <div class="navbar-avatar"></div>
+                    <span>Schuck</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-wrapper">
+            <!-- 侧边栏 -->
+            <aside class="sidebar">
+                <ul class="sidebar-menu">
+                    <li class="sidebar-item active">
+                        <a class="sidebar-link" href="设备管理-首页.html">设备管理</a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link">设备报表</a>
+                    </li>
+                    <li class="sidebar-item has-submenu" onclick="toggleSidebar(this)">
+                        <a class="sidebar-link">培训中心</a>
+                        <ul class="sidebar-submenu">
+                            <li class="sidebar-item"><a class="sidebar-link">知识库</a></li>
+                        </ul>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link">数据大屏</a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link">项目管理</a>
+                    </li>
+                    <li class="sidebar-item has-submenu" onclick="toggleSidebar(this)">
+                        <a class="sidebar-link">监控中心</a>
+                        <ul class="sidebar-submenu">
+                            <li class="sidebar-item"><a class="sidebar-link">地图监控</a></li>
+                            <li class="sidebar-item"><a class="sidebar-link">预警中心</a></li>
+                        </ul>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link">设备保养</a>
+                    </li>
+                    <li class="sidebar-item has-submenu" onclick="toggleSidebar(this)">
+                        <a class="sidebar-link">维修管理</a>
+                        <ul class="sidebar-submenu">
+                            <li class="sidebar-item"><a class="sidebar-link">维修列表</a></li>
+                            <li class="sidebar-item"><a class="sidebar-link">费用审批</a></li>
+                        </ul>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link">配件管理</a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link">工程师配置</a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link">服务车配置</a>
+                    </li>
+                    <li class="sidebar-item has-submenu" onclick="toggleSidebar(this)">
+                        <a class="sidebar-link">费用核算</a>
+                        <ul class="sidebar-submenu">
+                            <li class="sidebar-item"><a class="sidebar-link">费用明细</a></li>
+                            <li class="sidebar-item"><a class="sidebar-link">工作量明细</a></li>
+                            <li class="sidebar-item"><a class="sidebar-link">核算统计</a></li>
+                        </ul>
+                    </li>
+                    <li class="sidebar-item has-submenu" onclick="toggleSidebar(this)">
+                        <a class="sidebar-link">音视频服务</a>
+                        <ul class="sidebar-submenu">
+                            <li class="sidebar-item"><a class="sidebar-link">终端管理</a></li>
+                        </ul>
+                    </li>
+                    <li class="sidebar-item has-submenu" onclick="toggleSidebar(this)">
+                        <a class="sidebar-link">企业服务</a>
+                        <ul class="sidebar-submenu">
+                            <li class="sidebar-item"><a class="sidebar-link">租户管理</a></li>
+                            <li class="sidebar-item"><a class="sidebar-link">个人中心</a></li>
+                            <li class="sidebar-item"><a class="sidebar-link">组织管理</a></li>
+                            <li class="sidebar-item"><a class="sidebar-link">用户管理</a></li>
+                            <li class="sidebar-item"><a class="sidebar-link">角色管理</a></li>
+                        </ul>
+                    </li>
+                    <li class="sidebar-item has-submenu" onclick="toggleSidebar(this)">
+                        <a class="sidebar-link">重卡车队运营</a>
+                        <ul class="sidebar-submenu">
+                            <li class="sidebar-item"><a class="sidebar-link">运营大屏</a></li>
+                            <li class="sidebar-item"><a class="sidebar-link">车队仪表盘</a></li>
+                            <li class="sidebar-item"><a class="sidebar-link">运营分析</a></li>
+                            <li class="sidebar-item"><a class="sidebar-link">里程能耗</a></li>
+                            <li class="sidebar-item"><a class="sidebar-link">充电数据</a></li>
+                            <li class="sidebar-item"><a class="sidebar-link">电子围栏</a></li>
+                            <li class="sidebar-item"><a class="sidebar-link">车队报告</a></li>
+                            <li class="sidebar-item"><a class="sidebar-link">驾驶行为</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </aside>
+
+            <!-- 主内容区 -->
+            <main class="main-content">
+                <!-- 个人信息 -->
+                <h2 class="section-title">个人信息</h2>
+                <div class="info-card">
+                    <div class="info-grid">
+                        <div>
+                            <div class="info-item-label">用户姓名</div>
+                            <div class="info-item-value">
+                                Schuck
+                                <span class="edit-icon" title="编辑">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="#1677ff">
+                                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                                    </svg>
+                                </span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="info-item-label">绑定手机号</div>
+                            <div class="info-item-value">
+                                <span id="bindPhoneText">–</span>
+                                <a class="bind-link" id="bindPhoneLink" onclick="openBindPhoneModal()">绑定</a>
+                                <a class="bind-link" id="rebindPhoneLink" onclick="openRebindPhoneModal()" style="display:none;">换绑</a>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="info-item-label">邮箱</div>
+                            <div class="info-item-value">
+                                <span id="emailText">–</span>
+                                <a class="bind-link" id="emailBindLink" onclick="openBindEmailModal()">绑定</a>
+                                <a class="bind-link" id="emailRebindLink" onclick="openRebindEmailModal()" style="display:none;">换绑</a>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="info-item-label">业务职责</div>
+                            <div class="info-item-value">
+                                <span id="roleText">三一员工</span>
+                                <a class="bind-link" id="roleSwitchLink" onclick="openRoleModal()">切换</a>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="info-item-label">账号创建时间</div>
+                            <div class="info-item-value">2026-07-15 14:59:54</div>
+                        </div>
+                        <div>
+                            <div class="info-item-label">最后登录时间</div>
+                            <div class="info-item-value">2026-07-21 09:09:47</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 租户信息 -->
+                <h2 class="section-title">租户信息</h2>
+                <div class="tenant-block">
+                    <div class="tenant-block-title">当前租户</div>
+                    <div class="tenant-current">
+                        <div class="tenant-info">
+                            <div class="tenant-avatar hex">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2 3 7v10l9 5 9-5V7l-9-5zm0 2.18L18.82 8 12 11.82 5.18 8 12 4.18zM5 9.5l6 3.36v7.04l-6-3.33V9.5zm14 6.57-6 3.33v-7.04l6-3.36v7.07z"/>
+                                </svg>
+                            </div>
+                            <div class="tenant-meta">
+                                <div class="tenant-name">Schuck</div>
+                                <div class="tenant-role">个人租户</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tenant-block">
+                    <div class="tenant-block-title">所属租户列表表</div>
+                    <div class="tenant-list">
+                        <div class="tenant-card">
+                            <div class="tenant-info">
+                                <div class="tenant-avatar hex">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 2 3 7v10l9 5 9-5V7l-9-5zm0 2.18L18.82 8 12 11.82 5.18 8 12 4.18zM5 9.5l6 3.36v7.04l-6-3.33V9.5zm14 6.57-6 3.33v-7.04l6-3.36v7.07z"/>
+                                    </svg>
+                                </div>
+                                <div class="tenant-meta">
+                                    <div class="tenant-name">Schuck</div>
+                                    <div class="tenant-role">个人租户</div>
+                                </div>
+                            </div>
+                            <span class="tenant-badge">当前</span>
+                        </div>
+                        <div class="tenant-card">
+                            <div class="tenant-info">
+                                <div class="tenant-avatar person">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                    </svg>
+                                </div>
+                                <div class="tenant-meta">
+                                    <div class="tenant-name">plz call me little duckpzl call</div>
+                                    <div class="tenant-role">企业客户</div>
+                                </div>
+                            </div>
+                            <span class="tenant-switch">切换</span>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 角色选择弹窗 -->
+    <div class="role-mask" id="roleModal">
+        <div class="role-modal-box">
+            <button class="role-modal-close-btn" id="roleCloseBtn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+            <h3 class="role-modal-title">切换业务职责</h3>
+            <p class="role-welcome">选择您的身份，我们将为您匹配专属设备管理服务与个性化体验。</p>
+            <div class="role-grid" id="roleGrid">
+                <div class="role-card" data-index="0" data-role="设备所有者"
+                     style="--card-color:#ff6b35;--card-bg:linear-gradient(135deg,#ff8a5b,#ff6b35);">
+                    <div class="role-card-avatar">👷</div>
+                    <div class="role-card-name">设备所有者</div>
+                    <div class="role-card-desc">拥有设备所有权，实时掌握设备台账与运行状况</div>
+                </div>
+                <div class="role-card" data-index="1" data-role="设备管理员"
+                     style="--card-color:#4a8cff;--card-bg:linear-gradient(135deg,#6ba5ff,#4a8cff);">
+                    <div class="role-card-avatar">📋</div>
+                    <div class="role-card-name">设备管理员</div>
+                    <div class="role-card-desc">统筹运维调度，负责设备巡检、保养计划和维修派单</div>
+                </div>
+                <div class="role-card" data-index="2" data-role="设备操作手"
+                     style="--card-color:#a06bff;--card-bg:linear-gradient(135deg,#b88aff,#a06bff);">
+                    <div class="role-card-avatar">🎮</div>
+                    <div class="role-card-name">设备操作手</div>
+                    <div class="role-card-desc">一线操作人员，获取设备操作指南与安全作业规范</div>
+                </div>
+                <div class="role-card" data-index="3" data-role="设备维修员"
+                     style="--card-color:#22c55e;--card-bg:linear-gradient(135deg,#4ade80,#22c55e);">
+                    <div class="role-card-avatar">🔧</div>
+                    <div class="role-card-name">设备维修员</div>
+                    <div class="role-card-desc">专业维修技师，快速响应工单、获取故障诊断与技术资料</div>
+                </div>
+                <div class="role-card" data-index="4" data-role="三一代理商"
+                     style="--card-color:#ff5a8a;--card-bg:linear-gradient(135deg,#ff7aa3,#ff5a8a);">
+                    <div class="role-card-avatar">🤝</div>
+                    <div class="role-card-name">三一代理商</div>
+                    <div class="role-card-desc">三一授权代理商，管理客户设备与提供销售售后服务</div>
+                </div>
+                <div class="role-card" data-index="5" data-role="三一员工"
+                     style="--card-color:#ff3a3a;--card-bg:linear-gradient(135deg,#ff5e5e,#ff3a3a);">
+                    <div class="role-card-avatar">👔</div>
+                    <div class="role-card-name">三一员工</div>
+                    <div class="role-card-desc">客户服务支持，对接用户需求，协调设备全生命周期服务</div>
+                </div>
+            </div>
+            <button class="role-confirm-btn" id="roleConfirmBtn">确定选择</button>
+        </div>
+    </div>
+
+    <!-- 角色二次确认弹窗 -->
+    <div class="confirm-mask" id="confirmMask">
+        <div class="confirm-dialog">
+            <div class="confirm-dialog-body">
+                <div class="confirm-icon">✓</div>
+                <div class="confirm-title">确认切换为 <strong id="confirmRoleName">设备所有者</strong> ？</div>
+                <div class="confirm-text">切换后服务内容将同步更新</div>
+            </div>
+            <div class="confirm-actions">
+                <button class="confirm-cancel" id="confirmCancel">取消</button>
+                <button class="confirm-ok" id="confirmOk">确认切换</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 绑定邮箱弹窗 -->
+    <div class="modal-overlay" id="bindEmailModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span>绑定邮箱</span>
+                <span class="modal-close" onclick="closeBindEmailModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-item">
+                    <label>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="#999"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                        邮箱地址
+                    </label>
+                    <div class="input-wrap">
+                        <input type="email" id="bindEmailInput" placeholder="请输入需要绑定的邮箱地址" autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-item">
+                    <label>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="#999"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                        邮箱验证码
+                    </label>
+                    <div class="input-row">
+                        <div class="input-wrap" style="flex:1;">
+                            <input type="text" id="emailVerifyCodeInput" placeholder="请输入6位验证码" maxlength="6" autocomplete="off">
+                        </div>
+                        <button class="code-btn" id="emailSendCodeBtn" onclick="sendEmailVerifyCode()">发送验证码</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeBindEmailModal()">取消</button>
+                <button class="btn primary" id="emailConfirmBindBtn" onclick="confirmBindEmail()" disabled>确认绑定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 换绑邮箱弹窗 -->
+    <div class="modal-overlay" id="rebindEmailModal">
+        <div class="modal-box" style="width:440px;">
+            <div class="modal-header">
+                <span>换绑邮箱</span>
+                <span class="modal-close" onclick="closeRebindEmailModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-item">
+                    <label>当前邮箱</label>
+                    <div class="input-wrap">
+                        <input type="text" id="oldEmailDisplay" disabled style="background:#f5f5f5;color:#999;">
+                    </div>
+                </div>
+                <div class="form-item">
+                    <label>当前邮箱验证码</label>
+                    <div class="input-row">
+                        <div class="input-wrap" style="flex:1;">
+                            <input type="text" id="oldEmailCodeInput" placeholder="请输入当前邮箱的验证码" maxlength="6" autocomplete="off">
+                        </div>
+                        <button class="code-btn" id="oldEmailSendCodeBtn" onclick="sendOldEmailCode()">发送验证码</button>
+                    </div>
+                </div>
+                <div class="form-item">
+                    <label>新邮箱地址</label>
+                    <div class="input-wrap">
+                        <input type="email" id="newEmailInput" placeholder="请输入新的邮箱地址" autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-item">
+                    <label>新邮箱验证码</label>
+                    <div class="input-row">
+                        <div class="input-wrap" style="flex:1;">
+                            <input type="text" id="newEmailCodeInput" placeholder="请输入新邮箱的验证码" maxlength="6" autocomplete="off">
+                        </div>
+                        <button class="code-btn" id="newEmailSendCodeBtn" onclick="sendNewEmailCode()">发送验证码</button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeRebindEmailModal()">取消</button>
+                <button class="btn primary" id="emailConfirmRebindBtn" onclick="confirmRebindEmail()" disabled>确认换绑</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 绑定手机号弹窗 -->
+    <div class="modal-overlay" id="bindPhoneModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span></span>
+                <span>绑定手机号</span>
+                <span class="modal-close" onclick="closeBindPhoneModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="phone-modal-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#e60012" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="9" y1="12" x2="11" y2="14"/><line x1="11" y1="14" x2="15" y2="10"/></svg>
+                </div>
+                <div class="phone-modal-tip">绑定手机号，让账号更安全、操作更省心</div>
+                <div class="phone-modal-benefits">
+                    <div class="phone-benefit-item">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="#52c41a"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        <span>快捷登录：验证码验证，无需输入密码</span>
+                    </div>
+                    <div class="phone-benefit-item">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="#52c41a"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        <span>找回密码：支持短信验证，一键重置</span>
+                    </div>
+                    <div class="phone-benefit-item">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="#52c41a"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        <span>安全预警：资产异常实时通知，防范风险</span>
+                    </div>
+                </div>
+                <div class="form-item">
+                    <label>手机号码</label>
+                    <div class="input-row">
+                        <div class="area-code-wrap">
+                            <span class="area-code" id="areaCodeBtn" onclick="toggleAreaDropdown()">+86<span class="caret">⌄</span></span>
+                            <div class="area-code-dropdown" id="areaDropdown">
+                                <div class="search-box">
+                                    <input type="text" placeholder="搜索国家或地区" oninput="filterAreaCountry(this.value)" />
+                                </div>
+                                <div id="areaCountryList"></div>
+                            </div>
+                        </div>
+                        <div class="input-wrap">
+                            <input type="tel" id="bindPhoneInput" placeholder="请输入手机号码" autocomplete="off">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-item">
+                    <label>验证码</label>
+                    <div class="code-row">
+                        <div class="input-row">
+                            <div class="input-wrap">
+                                <input type="text" id="bindVerifyCodeInput" placeholder="请输入短信验证码" maxlength="6" autocomplete="off">
+                            </div>
+                        </div>
+                        <button class="code-btn" id="bindSendCodeBtn" onclick="sendBindVerifyCode()">获取验证码</button>
+                    </div>
+                </div>
+                <button class="confirm-btn" id="confirmBindBtn" onclick="confirmBindPhone()">确认绑定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 换绑手机号弹窗 -->
+    <div class="modal-overlay" id="rebindPhoneModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span></span>
+                <span>换绑手机号</span>
+                <span class="modal-close" onclick="closeRebindPhoneModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-item">
+                    <label>当前手机号</label>
+                    <div class="input-wrap">
+                        <input type="text" id="oldPhoneDisplay" disabled style="width:100%;height:46px;border:1.5px solid #e8e8e8;border-radius:10px;padding:0 16px;font-size:14px;background:#f5f5f5;color:#999;">
+                    </div>
+                </div>
+                <div class="form-item">
+                    <label>当前手机号验证码</label>
+                    <div class="code-row">
+                        <div class="input-row">
+                            <div class="input-wrap">
+                                <input type="text" id="oldVerifyCodeInput" placeholder="请输入当前手机号的验证码" maxlength="6" autocomplete="off">
+                            </div>
+                        </div>
+                        <button class="code-btn active" id="oldSendCodeBtn" onclick="sendOldVerifyCode()">获取验证码</button>
+                    </div>
+                </div>
+                <div class="form-item">
+                    <label>新手机号码</label>
+                    <div class="input-row">
+                        <div class="area-code-wrap">
+                            <span class="area-code" id="rebindAreaCodeBtn" onclick="toggleRebindAreaDropdown()">+86<span class="caret">⌄</span></span>
+                            <div class="area-code-dropdown" id="rebindAreaDropdown">
+                                <div class="search-box">
+                                    <input type="text" placeholder="搜索国家或地区" oninput="filterRebindAreaCountry(this.value)" />
+                                </div>
+                                <div id="rebindAreaCountryList"></div>
+                            </div>
+                        </div>
+                        <div class="input-wrap">
+                            <input type="tel" id="newPhoneInput" placeholder="请输入新的手机号码" autocomplete="off">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-item">
+                    <label>新手机号验证码</label>
+                    <div class="code-row">
+                        <div class="input-row">
+                            <div class="input-wrap">
+                                <input type="text" id="newVerifyCodeInput" placeholder="请输入新手机号的验证码" maxlength="6" autocomplete="off">
+                            </div>
+                        </div>
+                        <button class="code-btn" id="newSendCodeBtn" onclick="sendNewVerifyCode()">获取验证码</button>
+                    </div>
+                </div>
+                <button class="confirm-btn" id="confirmRebindBtn" onclick="confirmRebindPhone()">确认换绑</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== 侧边栏展开收起 ==========
+        function toggleSidebar(el) {
+            el.classList.toggle('expanded');
+        }
+
+        // ========== 国家区号数据 ==========
+        const countryCodes = [
+            { code: '+86',  name: '中国大陆',   regex: /^1[3-9]\d{9}$/ },
+            { code: '+852', name: '中国香港',   regex: /^\d{8}$/ },
+            { code: '+853', name: '中国澳门',   regex: /^\d{8}$/ },
+            { code: '+886', name: '中国台湾',   regex: /^09\d{8}$/ },
+            { code: '+1',   name: '美国/加拿大', regex: /^\d{10}$/ },
+            { code: '+44',  name: '英国',       regex: /^\d{10}$/ },
+            { code: '+81',  name: '日本',       regex: /^\d{10,11}$/ },
+            { code: '+82',  name: '韩国',       regex: /^\d{9,10}$/ },
+            { code: '+65',  name: '新加坡',     regex: /^\d{8}$/ },
+            { code: '+60',  name: '马来西亚',   regex: /^\d{9,10}$/ },
+            { code: '+66',  name: '泰国',       regex: /^\d{9}$/ },
+            { code: '+62',  name: '印度尼西亚', regex: /^\d{9,12}$/ },
+            { code: '+49',  name: '德国',       regex: /^\d{10,11}$/ },
+            { code: '+33',  name: '法国',       regex: /^\d{9}$/ },
+            { code: '+61',  name: '澳大利亚',   regex: /^\d{9}$/ },
+            { code: '+7',   name: '俄罗斯',     regex: /^\d{10}$/ },
+            { code: '+91',  name: '印度',       regex: /^\d{10}$/ },
+        ];
+
+        let bindCountry = countryCodes[0];
+        let rebindCountry = countryCodes[0];
+
+        // 手机号脱敏显示：区号不限制，号码前4后4明文，中间四星
+        function maskPhone(countryCode, phone) {
+            if (!phone || phone.length < 8) return countryCode + ' ' + phone;
+            return countryCode + ' ' + phone.slice(0, 4) + '***' + phone.slice(-4);
+        }
+
+        // 已绑定手机号池（模拟已绑定的号码，用于绑定/换绑时拦截）
+        var boundPhones = ['15574392650', '13900001111'];
+
+        function isPhoneAlreadyBound(phone) {
+            for (var i = 0; i < boundPhones.length; i++) {
+                if (boundPhones[i] === phone) return true;
+            }
+            // 绑定成功后加入已绑定池
+            return false;
+        }
+
+        // 存储明文手机号用于换绑流程
+        let currentPlainPhone = '';
+        let currentCountryCode = '+86';
+        let bindCodeTimer = null;
+        let bindCodeCountdown = 0;
+        let rebindOldCodeTimer = null;
+        let rebindOldCodeCountdown = 0;
+
+        // ========== 邮箱绑定弹窗 ==========
+        let emailCodeTimer = null;
+        let emailCodeCountdown = 0;
+
+        function openBindEmailModal() {
+            document.getElementById('bindEmailModal').classList.add('show');
+            document.getElementById('bindEmailInput').value = '';
+            document.getElementById('emailVerifyCodeInput').value = '';
+            document.getElementById('emailConfirmBindBtn').disabled = true;
+        }
+
+        function closeBindEmailModal() {
+            document.getElementById('bindEmailModal').classList.remove('show');
+            if (emailCodeTimer) {
+                clearInterval(emailCodeTimer);
+                emailCodeTimer = null;
+                emailCodeCountdown = 0;
+                document.getElementById('emailSendCodeBtn').disabled = false;
+                document.getElementById('emailSendCodeBtn').textContent = '发送验证码';
+            }
+        }
+
+        function sendEmailVerifyCode() {
+            if (emailCodeCountdown > 0) return;
+            const email = document.getElementById('bindEmailInput').value.trim();
+            if (!email) { showToast('请先输入邮箱地址', 'warning'); return; }
+            const btn = document.getElementById('emailSendCodeBtn');
+            btn.disabled = true;
+            emailCodeCountdown = 60;
+            btn.textContent = emailCodeCountdown + 's 后重发';
+            emailCodeTimer = setInterval(function() {
+                emailCodeCountdown--;
+                btn.textContent = emailCodeCountdown + 's 后重发';
+                if (emailCodeCountdown <= 0) {
+                    clearInterval(emailCodeTimer);
+                    emailCodeTimer = null;
+                    btn.disabled = false;
+                    btn.textContent = '重新发送';
+                }
+            }, 1000);
+        }
+
+        // 邮箱验证码输入监听
+        document.getElementById('emailVerifyCodeInput').addEventListener('input', function() {
+            const code = this.value.trim();
+            document.getElementById('emailConfirmBindBtn').disabled = code.length < 4;
+        });
+        document.getElementById('emailVerifyCodeInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') confirmBindEmail();
+        });
+        document.getElementById('bindEmailInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                if (this.value.trim()) document.getElementById('emailVerifyCodeInput').focus();
+            }
+        });
+
+        function confirmBindEmail() {
+            const email = document.getElementById('bindEmailInput').value.trim();
+            const code = document.getElementById('emailVerifyCodeInput').value.trim();
+            if (!email) { showToast('请输入邮箱地址', 'warning'); return; }
+            if (code.length < 4) { showToast('请输入有效的验证码', 'warning'); return; }
+            showToast('邮箱绑定成功', 'success');
+            const emailValue = document.getElementById('emailText');
+            if (emailValue) {
+                emailValue.textContent = email;
+                document.getElementById('emailBindLink').style.display = 'none';
+                document.getElementById('emailRebindLink').style.display = 'inline';
+            }
+            closeBindEmailModal();
+        }
+
+        // ========== 邮箱换绑弹窗 ==========
+        let rebindEmailTimer = null;
+        let rebindEmailCountdown = 0;
+
+        function openRebindEmailModal() {
+            const currentEmail = document.getElementById('emailText').textContent.trim();
+            if (currentEmail === '–') { openBindEmailModal(); return; }
+            document.getElementById('oldEmailDisplay').value = currentEmail;
+            document.getElementById('oldEmailCodeInput').value = '';
+            document.getElementById('newEmailInput').value = '';
+            document.getElementById('newEmailCodeInput').value = '';
+            document.getElementById('emailConfirmRebindBtn').disabled = true;
+            document.getElementById('rebindEmailModal').classList.add('show');
+        }
+
+        function closeRebindEmailModal() {
+            document.getElementById('rebindEmailModal').classList.remove('show');
+            if (rebindEmailTimer) {
+                clearInterval(rebindEmailTimer);
+                rebindEmailTimer = null;
+                rebindEmailCountdown = 0;
+                document.getElementById('oldEmailSendCodeBtn').disabled = false;
+                document.getElementById('oldEmailSendCodeBtn').textContent = '发送验证码';
+            }
+        }
+
+        function sendOldEmailCode() {
+            if (rebindEmailCountdown > 0) return;
+            const btn = document.getElementById('oldEmailSendCodeBtn');
+            btn.disabled = true;
+            rebindEmailCountdown = 60;
+            btn.textContent = rebindEmailCountdown + 's 后重发';
+            rebindEmailTimer = setInterval(function() {
+                rebindEmailCountdown--;
+                if (rebindEmailCountdown <= 0) {
+                    clearInterval(rebindEmailTimer);
+                    rebindEmailTimer = null;
+                    btn.disabled = false;
+                    btn.textContent = '发送验证码';
+                } else {
+                    btn.textContent = rebindEmailCountdown + 's 后重发';
+                }
+            }, 1000);
+        }
+
+        function sendNewEmailCode() {
+            const email = document.getElementById('newEmailInput').value.trim();
+            if (!email) { showToast('请先输入新邮箱地址', 'warning'); return; }
+            const btn = document.getElementById('newEmailSendCodeBtn');
+            btn.disabled = true;
+            let countdown = 60;
+            btn.textContent = countdown + 's 后重发';
+            const timer = setInterval(function() {
+                countdown--;
+                if (countdown <= 0) {
+                    clearInterval(timer);
+                    btn.disabled = false;
+                    btn.textContent = '发送验证码';
+                } else {
+                    btn.textContent = countdown + 's 后重发';
+                }
+            }, 1000);
+        }
+
+        // 邮箱换绑验证码输入监听
+        document.getElementById('oldEmailCodeInput').addEventListener('input', checkEmailRebindBtn);
+        document.getElementById('newEmailCodeInput').addEventListener('input', checkEmailRebindBtn);
+        function checkEmailRebindBtn() {
+            const oldCode = document.getElementById('oldEmailCodeInput').value.trim();
+            const newCode = document.getElementById('newEmailCodeInput').value.trim();
+            document.getElementById('emailConfirmRebindBtn').disabled = oldCode.length < 4 || newCode.length < 4;
+        }
+
+        function confirmRebindEmail() {
+            const oldCode = document.getElementById('oldEmailCodeInput').value.trim();
+            const newEmail = document.getElementById('newEmailInput').value.trim();
+            const newCode = document.getElementById('newEmailCodeInput').value.trim();
+            if (!newEmail) { showToast('请输入新邮箱地址', 'warning'); return; }
+            if (oldCode.length < 4 || newCode.length < 4) { showToast('请输入有效的验证码', 'warning'); return; }
+            showToast('邮箱换绑成功', 'success');
+            document.getElementById('emailText').textContent = newEmail;
+            closeRebindEmailModal();
+        }
+
+        // ========== 区号选择器渲染 ==========
+        function renderCountryList(list, containerId, current) {
+            const el = document.getElementById(containerId);
+            el.innerHTML = list.map(c =>
+                `<div class="country-item${c.code === current.code ? ' active' : ''}" onclick="selectCountry('${c.code}', '${containerId}')">
+                    <span>${c.name}</span><span class="code">${c.code}</span>
+                </div>`
+            ).join('');
+        }
+
+        // 初始化国家列表
+        renderCountryList(countryCodes, 'areaCountryList', bindCountry);
+        renderCountryList(countryCodes, 'rebindAreaCountryList', rebindCountry);
+
+        function toggleAreaDropdown() {
+            const dd = document.getElementById('areaDropdown');
+            const btn = document.getElementById('areaCodeBtn');
+            const isOpen = dd.classList.toggle('open');
+            btn.classList.toggle('open', isOpen);
+            if (isOpen) {
+                dd.querySelector('input').value = '';
+                renderCountryList(countryCodes, 'areaCountryList', bindCountry);
+            }
+        }
+
+        function toggleRebindAreaDropdown() {
+            const dd = document.getElementById('rebindAreaDropdown');
+            const btn = document.getElementById('rebindAreaCodeBtn');
+            const isOpen = dd.classList.toggle('open');
+            btn.classList.toggle('open', isOpen);
+            if (isOpen) {
+                dd.querySelector('input').value = '';
+                renderCountryList(countryCodes, 'rebindAreaCountryList', rebindCountry);
+            }
+        }
+
+        function filterAreaCountry(val) {
+            const list = val ? countryCodes.filter(c => c.name.includes(val) || c.code.includes(val)) : countryCodes;
+            renderCountryList(list, 'areaCountryList', bindCountry);
+        }
+
+        function filterRebindAreaCountry(val) {
+            const list = val ? countryCodes.filter(c => c.name.includes(val) || c.code.includes(val)) : countryCodes;
+            renderCountryList(list, 'rebindAreaCountryList', rebindCountry);
+        }
+
+        function selectCountry(code, containerId) {
+            const country = countryCodes.find(c => c.code === code);
+            if (containerId === 'areaCountryList') {
+                bindCountry = country;
+                document.getElementById('areaCodeBtn').innerHTML = country.code + '<span class="caret">⌄</span>';
+                document.getElementById('areaDropdown').classList.remove('open');
+                document.getElementById('areaCodeBtn').classList.remove('open');
+                updateBindSendBtn();
+            } else {
+                rebindCountry = country;
+                document.getElementById('rebindAreaCodeBtn').innerHTML = country.code + '<span class="caret">⌄</span>';
+                document.getElementById('rebindAreaDropdown').classList.remove('open');
+                document.getElementById('rebindAreaCodeBtn').classList.remove('open');
+            }
+        }
+
+        // 点击其他地方关闭区号下拉
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.area-code-wrap')) {
+                ['areaDropdown', 'rebindAreaDropdown'].forEach(function(id) {
+                    const dd = document.getElementById(id);
+                    if (dd && dd.classList.contains('open')) {
+                        dd.classList.remove('open');
+                        const btn = id === 'areaDropdown' ? document.getElementById('areaCodeBtn') : document.getElementById('rebindAreaCodeBtn');
+                        if (btn) btn.classList.remove('open');
+                    }
+                });
+            }
+        });
+
+        // ========== 绑定手机号弹窗 ==========
+        function openBindPhoneModal() {
+            document.getElementById('bindPhoneModal').classList.add('show');
+            document.getElementById('bindPhoneInput').value = '';
+            document.getElementById('bindVerifyCodeInput').value = '';
+            document.getElementById('confirmBindBtn').classList.remove('active');
+            document.getElementById('bindSendCodeBtn').classList.remove('active');
+            document.getElementById('bindSendCodeBtn').textContent = '获取验证码';
+        }
+
+        function closeBindPhoneModal() {
+            document.getElementById('bindPhoneModal').classList.remove('show');
+            if (bindCodeTimer) {
+                clearInterval(bindCodeTimer);
+                bindCodeTimer = null;
+                document.getElementById('bindSendCodeBtn').classList.remove('active');
+                document.getElementById('bindSendCodeBtn').textContent = '获取验证码';
+                bindCodeCountdown = 0;
+            }
+        }
+
+        function updateBindSendBtn() {
+            if (bindCodeCountdown > 0) return;
+            const phone = document.getElementById('bindPhoneInput').value.trim();
+            const btn = document.getElementById('bindSendCodeBtn');
+            if (phone && bindCountry.regex.test(phone)) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        }
+
+        // 手机号输入监听
+        document.getElementById('bindPhoneInput').addEventListener('input', function() {
+            updateBindSendBtn();
+        });
+
+        // 验证码输入监听
+        document.getElementById('bindVerifyCodeInput').addEventListener('input', function() {
+            const code = this.value.trim();
+            var cb = document.getElementById('confirmBindBtn');
+            if (code.length >= 4) { cb.classList.add('active'); }
+            else { cb.classList.remove('active'); }
+        });
+
+        // 回车触发
+        document.getElementById('bindVerifyCodeInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') confirmBindPhone();
+        });
+        document.getElementById('bindPhoneInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                if (this.value.trim()) document.getElementById('bindVerifyCodeInput').focus();
+            }
+        });
+
+        function sendBindVerifyCode() {
+            if (bindCodeCountdown > 0) return;
+            const phone = document.getElementById('bindPhoneInput').value.trim();
+            if (!phone) { showToast('请先输入手机号码', 'warning'); return; }
+            if (!bindCountry.regex.test(phone)) { showToast('请输入有效的手机号码', 'warning'); return; }
+            const btn = document.getElementById('bindSendCodeBtn');
+            btn.classList.remove('active');
+            bindCodeCountdown = 60;
+            btn.textContent = bindCodeCountdown + 's 后重发';
+            bindCodeTimer = setInterval(function() {
+                bindCodeCountdown--;
+                btn.textContent = bindCodeCountdown + 's 后重发';
+                if (bindCodeCountdown <= 0) {
+                    clearInterval(bindCodeTimer);
+                    bindCodeTimer = null;
+                    btn.classList.add('active');
+                    btn.textContent = '重新获取';
+                }
+            }, 1000);
+        }
+
+        function confirmBindPhone() {
+            const phone = document.getElementById('bindPhoneInput').value.trim();
+            const code = document.getElementById('bindVerifyCodeInput').value.trim();
+            if (!phone) { showToast('请输入手机号码', 'warning'); return; }
+            if (!bindCountry.regex.test(phone)) { showToast('请输入有效的手机号码', 'warning'); return; }
+            if (isPhoneAlreadyBound(phone)) { showToast('当前手机号已绑定相关账号，请使用其他手机号', 'warning'); return; }
+            if (code.length < 4) { showToast('请输入有效的验证码', 'warning'); return; }
+            showToast('手机号绑定成功', 'success');
+            boundPhones.push(phone);
+            currentPlainPhone = phone;
+            currentCountryCode = bindCountry.code;
+            const displayText = maskPhone(bindCountry.code, phone);
+            const phoneValue = document.getElementById('bindPhoneText');
+            if (phoneValue) {
+                phoneValue.textContent = displayText;
+                document.getElementById('bindPhoneLink').style.display = 'none';
+                document.getElementById('rebindPhoneLink').style.display = 'inline';
+            }
+            closeBindPhoneModal();
+        }
+
+        // ========== 换绑手机号弹窗 ==========
+        function openRebindPhoneModal() {
+            const currentPhone = document.getElementById('bindPhoneText').textContent.trim();
+            if (currentPhone === '–') { openBindPhoneModal(); return; }
+            document.getElementById('oldPhoneDisplay').value = currentPhone;
+            document.getElementById('oldVerifyCodeInput').value = '';
+            document.getElementById('newPhoneInput').value = '';
+            document.getElementById('newVerifyCodeInput').value = '';
+            document.getElementById('confirmRebindBtn').classList.remove('active');
+            document.getElementById('oldSendCodeBtn').classList.add('active');
+            document.getElementById('rebindPhoneModal').classList.add('show');
+        }
+
+        function closeRebindPhoneModal() {
+            document.getElementById('rebindPhoneModal').classList.remove('show');
+            clearRebindTimers();
+        }
+
+        function clearRebindTimers() {
+            if (rebindOldCodeTimer) {
+                clearInterval(rebindOldCodeTimer);
+                rebindOldCodeTimer = null;
+                document.getElementById('oldSendCodeBtn').classList.add('active');
+                document.getElementById('oldSendCodeBtn').textContent = '获取验证码';
+                rebindOldCodeCountdown = 0;
+            }
+        }
+
+        function sendOldVerifyCode() {
+            if (rebindOldCodeCountdown > 0) return;
+            const btn = document.getElementById('oldSendCodeBtn');
+            btn.classList.remove('active');
+            rebindOldCodeCountdown = 60;
+            btn.textContent = rebindOldCodeCountdown + 's 后重发';
+            rebindOldCodeTimer = setInterval(function() {
+                rebindOldCodeCountdown--;
+                if (rebindOldCodeCountdown <= 0) {
+                    clearInterval(rebindOldCodeTimer);
+                    rebindOldCodeTimer = null;
+                    btn.classList.add('active');
+                    btn.textContent = '重新获取';
+                } else {
+                    btn.textContent = rebindOldCodeCountdown + 's 后重发';
+                }
+            }, 1000);
+        }
+
+        function sendNewVerifyCode() {
+            const phone = document.getElementById('newPhoneInput').value.trim();
+            if (!phone) { showToast('请先输入新手机号码', 'warning'); return; }
+            if (!rebindCountry.regex.test(phone)) { showToast('请输入有效的新手机号码', 'warning'); return; }
+            const btn = document.getElementById('newSendCodeBtn');
+            btn.classList.remove('active');
+            let countdown = 60;
+            btn.textContent = countdown + 's 后重发';
+            const timer = setInterval(function() {
+                countdown--;
+                if (countdown <= 0) {
+                    clearInterval(timer);
+                    btn.classList.add('active');
+                    btn.textContent = '重新获取';
+                } else {
+                    btn.textContent = countdown + 's 后重发';
+                }
+            }, 1000);
+        }
+
+        // 换绑验证码输入监听
+        document.getElementById('oldVerifyCodeInput').addEventListener('input', checkRebindBtn);
+        document.getElementById('newVerifyCodeInput').addEventListener('input', checkRebindBtn);
+        function checkRebindBtn() {
+            const oldCode = document.getElementById('oldVerifyCodeInput').value.trim();
+            const newCode = document.getElementById('newVerifyCodeInput').value.trim();
+            var cb = document.getElementById('confirmRebindBtn');
+            if (oldCode.length >= 4 && newCode.length >= 4) { cb.classList.add('active'); }
+            else { cb.classList.remove('active'); }
+        }
+
+        function confirmRebindPhone() {
+            const oldCode = document.getElementById('oldVerifyCodeInput').value.trim();
+            const newPhone = document.getElementById('newPhoneInput').value.trim();
+            const newCode = document.getElementById('newVerifyCodeInput').value.trim();
+            if (!newPhone) { showToast('请输入新手机号码', 'warning'); return; }
+            if (!rebindCountry.regex.test(newPhone)) { showToast('请输入有效的新手机号码', 'warning'); return; }
+            if (newPhone === currentPlainPhone) { showToast('新手机号与当前手机号相同', 'warning'); return; }
+            if (isPhoneAlreadyBound(newPhone)) { showToast('当前手机号已绑定相关账号，请使用其他手机号', 'warning'); return; }
+            if (oldCode.length < 4 || newCode.length < 4) { showToast('请输入有效的验证码', 'warning'); return; }
+            showToast('手机号换绑成功', 'success');
+            // 从已绑定池移除旧号，加入新号
+            var oldIdx = boundPhones.indexOf(currentPlainPhone);
+            if (oldIdx >= 0) boundPhones.splice(oldIdx, 1);
+            boundPhones.push(newPhone);
+            currentPlainPhone = newPhone;
+            currentCountryCode = rebindCountry.code;
+            document.getElementById('bindPhoneText').textContent = maskPhone(rebindCountry.code, newPhone);
+            document.getElementById('oldPhoneDisplay').value = maskPhone(rebindCountry.code, newPhone);
+            closeRebindPhoneModal();
+        }
+
+        // ========== Toast 提示 ==========
+        function showToast(msg, type) {
+            const old = document.querySelector('.toast-notice');
+            if (old) old.remove();
+            const t = document.createElement('div');
+            t.className = 'toast-notice';
+            const bg = type === 'success' ? '#f6ffed' : '#fffbe6';
+            const col = type === 'success' ? '#52c41a' : '#d46b08';
+            const bd = type === 'success' ? '#b7eb8f' : '#ffe58f';
+            const icon = type === 'success'
+                ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="#52c41a"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>'
+                : '<svg width="16" height="16" viewBox="0 0 24 24" fill="#d46b08"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>';
+            t.innerHTML = icon + '<span>' + msg + '</span>';
+            t.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:2000;display:flex;align-items:center;gap:8px;padding:12px 24px;border-radius:8px;font-size:14px;background:' + bg + ';color:#333;border:1px solid ' + bd + ';box-shadow:0 6px 20px rgba(0,0,0,0.1);';
+            document.body.appendChild(t);
+            setTimeout(function() {
+                t.style.opacity = '0';
+                t.style.transition = 'opacity 0.3s';
+                setTimeout(function() { if (t.parentNode) t.parentNode.removeChild(t); }, 300);
+            }, 3000);
+        }
+
+        // ========== 角色切换弹窗 ==========
+        const roleCards = document.querySelectorAll(".role-card");
+        const roleNames = ["设备所有者","设备管理员","设备操作手","设备维修员","三一代理商","三一员工"];
+        let activeRoleIndex = 5; // 默认三一员工
+
+        function setActiveRole(idx) {
+            activeRoleIndex = idx;
+            roleCards.forEach(function(c, i) { c.classList.toggle("active", i === idx); });
+        }
+
+        // 根据当前显示的角色高亮对应卡片
+        function syncRoleCardToCurrent() {
+            var currentRole = document.getElementById("roleText").textContent.trim();
+            var idx = roleNames.indexOf(currentRole);
+            if (idx >= 0) { activeRoleIndex = idx; }
+            setActiveRole(activeRoleIndex);
+        }
+
+        roleCards.forEach(function(card, i) {
+            card.addEventListener("click", function() { setActiveRole(i); });
+        });
+
+        function openRoleModal() {
+            syncRoleCardToCurrent();
+            document.getElementById("roleModal").classList.add("show");
+        }
+
+        document.getElementById("roleCloseBtn").addEventListener("click", function() {
+            document.getElementById("roleModal").classList.remove("show");
+        });
+
+        document.getElementById("roleConfirmBtn").addEventListener("click", function() {
+            document.getElementById("confirmRoleName").textContent = roleNames[activeRoleIndex];
+            document.getElementById("confirmMask").classList.add("show");
+        });
+
+        document.getElementById("confirmCancel").addEventListener("click", function() {
+            document.getElementById("confirmMask").classList.remove("show");
+        });
+
+        document.getElementById("confirmOk").addEventListener("click", function() {
+            var newRole = roleNames[activeRoleIndex];
+            document.getElementById("roleText").textContent = newRole;
+            document.getElementById("confirmMask").classList.remove("show");
+            document.getElementById("roleModal").classList.remove("show");
+            showToast("业务职责已更新为：" + newRole, "success");
+        });
+    </script>
+
+    <!-- 站内信完整消息中心弹层（"查看更多"触发） -->
+    <div class="msg-overlay" id="msg-overlay">
+        <div class="msg-overlay-panel">
+            <div class="msg-overlay-header">
+                <h3>消息中心</h3>
+                <div class="msg-overlay-close" onclick="closeMsgOverlay()">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </div>
+            </div>
+            <div class="msg-overlay-body">
+                <!-- 左侧分类 Tab -->
+                <aside class="msg-sidebar" id="msg-sidebar">
+                    <!-- 动态填充分类 Tab -->
+                </aside>
+                <!-- 右侧主区：筛选 + 列表 -->
+                <section class="msg-main">
+                    <div class="msg-toolbar">
+                        <span class="msg-date">
+                            <input type="text" placeholder="开始日期" id="msg-date-start" />
+                            <span class="msg-date-sep">~</span>
+                            <input type="text" placeholder="结束日期" id="msg-date-end" />
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:6px;color:#999;">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                        </span>
+                        <button class="msg-btn" onclick="onResetClick()">重 置</button>
+                        <label class="msg-checkbox">
+                            <input type="checkbox" id="msg-only-unread" onchange="onOnlyUnreadChange()" />
+                            <span>只看未读</span>
+                        </label>
+                        <button class="msg-btn primary" onclick="markAllReadOverlay()">全部已读</button>
+                    </div>
+                    <div class="msg-list" id="msg-list">
+                        <!-- 动态填充消息列表 -->
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    /* ============================================================
+       站内信 — 顶部"消息"按钮：悬停下拉 + 完整弹层
+       复刻自 APP站内信.html（按业务类型分组的站内信列表）
+       ============================================================ */
+
+    // 与 APP 端 mockData 对齐：每个业务类型下若干条消息
+    // 每条消息含：站内信分类标题(category)、消息标题(title)、消息摘要(content)、跳转文案(linkText)、推送时间戳(time)
+    const msgMockData = {
+        '设备监控与管理': [
+            {
+                category: '围栏告警',
+                title: '围栏报警',
+                content: '您的"挖掘机"（设备编号：SY123456）驶出了围栏"长沙工业园围栏"，可点击查看详情。',
+                linkText: '查看围栏告警记录列表',
+                time: '2026-08-12 14:20:00',
+                read: false
+            },
+            {
+                category: '围栏告警',
+                title: '围栏报警',
+                content: '您的"压路机"（设备编号：SY888888）驶入了围栏"三一重工2号厂区"，可点击查看详情。',
+                linkText: '查看围栏告警记录列表',
+                time: '2026-08-11 09:15:00',
+                read: false
+            },
+            {
+                category: '设备绑定消息提醒',
+                title: '设备绑定提醒',
+                content: '「KT105AXE40164」超期未审核，系统已自动收回临时权限，请联系设备管理员审核。',
+                linkText: '',
+                time: '2026-08-10 18:30:00',
+                read: false
+            },
+            {
+                category: '设备绑定消息提醒',
+                title: '设备绑定提醒',
+                content: '「KT105AXE40188」超期未审核，系统已自动收回临时权限，请联系设备管理员审核。',
+                linkText: '',
+                time: '2026-07-20 16:00:00',
+                read: true
+            },
+            {
+                category: '围栏告警',
+                title: '围栏报警',
+                content: '您的"泵车"（设备编号：SY999999）驶出了围栏"北京物流园区"，可点击查看详情。',
+                linkText: '查看围栏告警记录列表',
+                time: '2025-12-18 11:00:00',
+                read: true
+            }
+        ],
+        '服务与售后': [
+            {
+                category: '服务召请',
+                title: '服务订单状态变更通知',
+                content: '工程师【李工】已受理您的设备【SY123456】召请服务。',
+                linkText: '查看服务订单进度',
+                time: '2026-08-12 09:30:00',
+                read: false
+            },
+            {
+                category: '保养提醒',
+                title: '待保养通知',
+                content: '您的设备 SY98765432 需要保养了，请预约保养！点击预约保养。',
+                linkText: '点击预约保养',
+                time: '2026-08-11 10:15:00',
+                read: false
+            },
+            {
+                category: '服务召请',
+                title: '服务订单状态变更通知',
+                content: '您的设备【SY123456】已完成服务，请及时确认电子工单并评价。',
+                linkText: '查看服务订单进度',
+                time: '2026-08-10 15:20:00',
+                read: false
+            },
+            {
+                category: '保养提醒',
+                title: '待保养通知',
+                content: '您的设备 SY12345678 需要保养了，请预约保养！点击预约保养。',
+                linkText: '点击预约保养',
+                time: '2026-06-05 14:00:00',
+                read: true
+            }
+        ],
+        '商务与报价': [],
+        '客户反馈与评价': [
+            {
+                category: '投诉',
+                title: '内容回复通知',
+                content: '您提交的内容已处理。',
+                linkText: '查看内容详情',
+                time: '2026-08-10 15:00:00',
+                read: false
+            },
+            {
+                category: '满意度回访',
+                title: '满意度回访',
+                content: '尊敬的客户，感谢您选择三一产品，欢迎您参加三一集团满意度调查活动，认证验证码：XXXX，请您在XX小时内点击链接进行评价。',
+                linkText: '',
+                time: '2026-08-07 09:00:00',
+                read: true
+            },
+            {
+                category: '投诉',
+                title: '内容回复通知',
+                content: '您提交的内容已处理。',
+                linkText: '查看内容详情',
+                time: '2026-08-05 10:20:00',
+                read: true
+            }
+        ]
+    };
+
+    // 业务类型元信息：图标 SVG + 配色 + 图标 key
+    const typeMeta = {
+        '设备监控与管理': {
+            iconCls: 'bg-monitor',
+            svg: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>'
+        },
+        '服务与售后': {
+            iconCls: 'bg-service',
+            svg: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>'
+        },
+        '商务与报价': {
+            iconCls: 'bg-business',
+            svg: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>'
+        },
+        '客户反馈与评价': {
+            iconCls: 'bg-feedback',
+            svg: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>'
+        }
+    };
+
+    // 当前时间锚点（用于相对时间展示）
+    const NOW = new Date('2026-08-12 16:00:00');
+
+    // 按 PRD 2.1.4 卡片时间规则格式化
+    function formatCardTime(ts) {
+        const d = new Date(ts.replace(/-/g, '/'));
+        const y = d.getFullYear();
+        const m = d.getMonth() + 1;
+        const day = d.getDate();
+        const hh = String(d.getHours()).padStart(2, '0');
+        const mm = String(d.getMinutes()).padStart(2, '0');
+
+        const ny = NOW.getFullYear();
+        const nm = NOW.getMonth() + 1;
+        const nd = NOW.getDate();
+
+        const dStart = new Date(y, m - 1, day);
+        const nStart = new Date(ny, nm - 1, nd);
+        const diffDays = Math.round((nStart - dStart) / 86400000);
+
+        if (diffDays === 0) return hh + ':' + mm;
+        if (diffDays === 1) return '昨天 ' + hh + ':' + mm;
+        if (diffDays === 2) return '前天 ' + hh + ':' + mm;
+        if (y === ny) return (m < 10 ? '0' + m : m) + '-' + (day < 10 ? '0' + day : day) + ' ' + hh + ':' + mm;
+        return y + '-' + (m < 10 ? '0' + m : m) + '-' + (day < 10 ? '0' + day : day) + ' ' + hh + ':' + mm;
+    }
+
+    // 合并所有类型下的消息，按时间倒序取最近 5 条
+    function getRecentMessages(limit) {
+        const all = [];
+        Object.keys(msgMockData).forEach(function (type) {
+            msgMockData[type].forEach(function (m) {
+                all.push(Object.assign({}, m, { type: type }));
+            });
+        });
+        all.sort(function (a, b) {
+            return new Date(b.time.replace(/-/g, '/')) - new Date(a.time.replace(/-/g, '/'));
+        });
+        return all.slice(0, limit || 5);
+    }
+
+    // 渲染顶部下拉面板（最近 5 条）
+    function renderPopover() {
+        const list = document.getElementById('msg-popover-list');
+        if (!list) return;
+        const items = getRecentMessages(5);
+        let html = '';
+        items.forEach(function (m) {
+            const meta = typeMeta[m.type];
+            html +=
+                '<div class="msg-popover-item" onclick="onPopoverItemClick(event, \'' + m.type + '\', \'' + m.title + '\')">' +
+                    '<div class="msg-popover-icon ' + meta.iconCls + '">' + meta.svg + '</div>' +
+                    '<div class="msg-popover-content">' +
+                        '<div class="msg-popover-row">' +
+                            '<span class="msg-popover-category">' + m.category + '</span>' +
+                            '<span class="msg-popover-time">' + formatCardTime(m.time) + '</span>' +
+                        '</div>' +
+                        '<div class="msg-popover-summary">' +
+                            (m.read ? '' : '<span class="msg-popover-dot"></span>') +
+                            '<span>' + m.title + '</span>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+        });
+        list.innerHTML = html;
+        updateMsgBadge();
+    }
+
+    // 渲染完整弹层（左侧分类 Tab + 右侧筛选/列表）
+    let activeTab = 'all'; // 当前选中的分类（all = 全部）
+    let filterOnlyUnread = false;
+    let listPage = 1;       // 当前已加载的页码
+    let listLoading = false; // 是否正在加载更多
+    const pageSize = 5;      // 每页条数
+
+    function getAllMessages() {
+        const all = [];
+        Object.keys(msgMockData).forEach(function (type) {
+            msgMockData[type].forEach(function (m) {
+                all.push(Object.assign({}, m, { type: type }));
+            });
+        });
+        return all;
+    }
+
+    function getUnreadCount(type) {
+        if (!type || type === 'all') {
+            return getAllMessages().filter(function (x) { return !x.read; }).length;
+        }
+        return (msgMockData[type] || []).filter(function (x) { return !x.read; }).length;
+    }
+
+    function renderSidebar() {
+        const sb = document.getElementById('msg-sidebar');
+        if (!sb) return;
+        // 仅展示：全部消息 + 4 大业务类型
+        const tabs = [
+            { key: 'all', name: '全部消息' }
+        ].concat(Object.keys(typeMeta).map(function (k) {
+            return { key: k, name: k };
+        }));
+
+        let html = '';
+        tabs.forEach(function (t) {
+            const count = getUnreadCount(t.key);
+            const active = (activeTab === t.key) ? ' active' : '';
+            html +=
+                '<div class="msg-sidebar-tab' + active + '" onclick="onTabClick(\'' + t.key + '\')">' +
+                    '<span class="tab-name">' + t.name + '</span>' +
+                    (count > 0 ? '<span class="tab-count">' + (count > 99 ? '99+' : count) + '</span>' : '') +
+                '</div>';
+        });
+
+        sb.innerHTML = html;
+    }
+
+    function renderList() {
+        const list = document.getElementById('msg-list');
+        if (!list) return;
+        let arr = getAllMessages();
+
+        // 按分类筛选
+        if (activeTab !== 'all') {
+            arr = arr.filter(function (x) { return x.type === activeTab; });
+        }
+
+        // 只看未读
+        if (filterOnlyUnread) {
+            arr = arr.filter(function (x) { return !x.read; });
+        }
+
+        // 按时间倒序
+        arr.sort(function (a, b) {
+            return new Date(b.time.replace(/-/g, '/')) - new Date(a.time.replace(/-/g, '/'));
+        });
+
+        // 缺省页：该分类下没有任何消息
+        if (arr.length === 0) {
+            list.innerHTML =
+                '<div class="msg-empty">' +
+                    '<div class="msg-empty-illus">' +
+                        '<svg viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg">' +
+                            '<ellipse cx="100" cy="135" rx="80" ry="10" fill="#eaf7f0"/>' +
+                            '<rect x="65" y="40" width="60" height="70" rx="4" fill="#ffffff" stroke="#d9d9d9" stroke-width="1.5"/>' +
+                            '<line x1="72" y1="55" x2="118" y2="55" stroke="#e8e8e8" stroke-width="1.5"/>' +
+                            '<line x1="72" y1="65" x2="118" y2="65" stroke="#e8e8e8" stroke-width="1.5"/>' +
+                            '<line x1="72" y1="75" x2="105" y2="75" stroke="#e8e8e8" stroke-width="1.5"/>' +
+                            '<rect x="55" y="30" width="60" height="70" rx="4" fill="#ffffff" stroke="#d9d9d9" stroke-width="1.5"/>' +
+                            '<line x1="62" y1="45" x2="108" y2="45" stroke="#e8e8e8" stroke-width="1.5"/>' +
+                            '<line x1="62" y1="55" x2="108" y2="55" stroke="#e8e8e8" stroke-width="1.5"/>' +
+                            '<line x1="62" y1="65" x2="95" y2="65" stroke="#e8e8e8" stroke-width="1.5"/>' +
+                            '<circle cx="118" cy="95" r="18" fill="#ffffff" stroke="#1677ff" stroke-width="2"/>' +
+                            '<line x1="132" y1="109" x2="148" y2="125" stroke="#1677ff" stroke-width="3" stroke-linecap="round"/>' +
+                            '<circle cx="48" cy="40" r="6" fill="#e6f7ff"/>' +
+                            '<circle cx="160" cy="50" r="5" fill="#f6ffed"/>' +
+                            '<circle cx="40" cy="100" r="4" fill="#fff7e6"/>' +
+                            '<circle cx="165" cy="110" r="5" fill="#fff0f0"/>' +
+                        '</svg>' +
+                    '</div>' +
+                    '<div class="msg-empty-text">' + (activeTab === 'all' ? '暂无消息' : activeTab + '暂无消息') + '</div>' +
+                '</div>';
+            return;
+        }
+
+        // 分页：只渲染已加载页的数据
+        const total = arr.length;
+        const loaded = arr.slice(0, listPage * pageSize);
+
+        let html2 = '';
+        loaded.forEach(function (m) {
+            const meta = typeMeta[m.type] || { iconCls: 'bg-monitor', svg: '' };
+            html2 +=
+                '<div class="msg-list-item" onclick="onListItemClick(\'' + m.type + '\', \'' + m.title + '\', \'' + m.time + '\')">' +
+                    '<div class="msg-list-icon ' + meta.iconCls + '">' + meta.svg + '</div>' +
+                    '<div class="msg-list-body">' +
+                        '<div class="msg-list-row1">' +
+                            '<div class="msg-list-title">' +
+                                (m.read ? '' : '<span class="msg-list-dot"></span>') +
+                                '<span>' + m.title + '</span>' +
+                            '</div>' +
+                            '<span class="msg-list-time">' + formatCardTime(m.time) + '</span>' +
+                        '</div>' +
+                        '<div class="msg-list-content">' + m.content + '</div>' +
+                        (m.linkText ? '<div class="msg-list-link">' + m.linkText + ' ›</div>' : '') +
+                    '</div>' +
+                '</div>';
+        });
+
+        // 底部加载状态条
+        const hasMore = loaded.length < total;
+        if (hasMore) {
+            html2 +=
+                '<div class="msg-loadmore">' +
+                    '<span class="loading-dots"><i></i><i></i><i></i></span>' +
+                    '<span>加载中...</span>' +
+                '</div>';
+        } else {
+            html2 += '<div class="msg-loadmore">— 没有更多数据了 —</div>';
+        }
+
+        list.innerHTML = html2;
+    }
+
+    // 加载下一页（模拟分页加载）
+    function loadMoreList() {
+        if (listLoading) return;
+        const list = document.getElementById('msg-list');
+        if (!list) return;
+        // 计算当前筛选后的总数，判断是否还有更多
+        let arr = getAllMessages();
+        if (activeTab !== 'all') {
+            arr = arr.filter(function (x) { return x.type === activeTab; });
+        }
+        if (filterOnlyUnread) {
+            arr = arr.filter(function (x) { return !x.read; });
+        }
+        arr.sort(function (a, b) {
+            return new Date(b.time.replace(/-/g, '/')) - new Date(a.time.replace(/-/g, '/'));
+        });
+        if (listPage * pageSize >= arr.length) return;
+
+        listLoading = true;
+        // 模拟网络延迟
+        setTimeout(function () {
+            listPage += 1;
+            listLoading = false;
+            renderList();
+        }, 1200);
+    }
+
+    function renderOverlay() {
+        renderSidebar();
+        renderList();
+        updateMsgBadge();
+    }
+
+    function onTabClick(key) {
+        activeTab = key;
+        listPage = 1; // 切换分类时重置分页
+        // 进入任一具体分类时，该类型下所有消息标记为已读（与 PRD 2.1.2 3.1 一致）
+        if (key !== 'all' && msgMockData[key]) {
+            msgMockData[key].forEach(function (m) { m.read = true; });
+        }
+        renderOverlay();
+    }
+
+    function onListItemClick(type, title, time) {
+        // 点击单条消息 → 标记为已读
+        if (msgMockData[type]) {
+            msgMockData[type].forEach(function (m) {
+                if (m.title === title && m.time === time) m.read = true;
+            });
+        }
+        renderOverlay();
+    }
+
+    function onResetClick() {
+        const start = document.getElementById('msg-date-start');
+        const end = document.getElementById('msg-date-end');
+        const ur = document.getElementById('msg-only-unread');
+        if (start) start.value = '';
+        if (end) end.value = '';
+        if (ur) ur.checked = false;
+        filterOnlyUnread = false;
+        activeTab = 'all';
+        listPage = 1; // 重置时回到第一页
+        renderOverlay();
+    }
+
+    function onOnlyUnreadChange() {
+        const ur = document.getElementById('msg-only-unread');
+        filterOnlyUnread = !!(ur && ur.checked);
+        listPage = 1; // 切换筛选时回到第一页
+        renderList();
+    }
+
+    // 更新顶部铃铛未读角标（0 隐藏；1-98 显示数字；≥99 显示 99+）
+    function updateMsgBadge() {
+        const badge = document.getElementById('msg-badge');
+        if (!badge) return;
+        let total = 0;
+        Object.keys(msgMockData).forEach(function (t) {
+            total += msgMockData[t].filter(function (x) { return !x.read; }).length;
+        });
+        if (total <= 0) {
+            badge.classList.remove('show');
+            return;
+        }
+        badge.textContent = total > 99 ? '99+' : String(total);
+        badge.classList.add('show');
+    }
+
+    // 点击下拉中的某条消息：标记已读 → 打开完整弹层
+    function onPopoverItemClick(ev, type, title) {
+        ev.stopPropagation();
+        // 标记该条已读
+        if (msgMockData[type]) {
+            msgMockData[type].forEach(function (m) { if (m.title === title) m.read = true; });
+        }
+        renderPopover();
+        renderOverlay();
+        openMsgOverlay(ev);
+    }
+
+    function markAllRead(ev) {
+        if (ev) ev.stopPropagation();
+        Object.keys(msgMockData).forEach(function (t) {
+            msgMockData[t].forEach(function (m) { m.read = true; });
+        });
+        renderPopover();
+        renderOverlay();
+        if (typeof showToast === 'function') showToast('已全部标记为已读', 'success');
+    }
+
+    function markAllReadOverlay() {
+        markAllRead();
+    }
+
+    function openMsgOverlay(ev) {
+        if (ev) ev.stopPropagation();
+        renderOverlay();
+        document.getElementById('msg-overlay').classList.add('show');
+    }
+
+    function closeMsgOverlay() {
+        document.getElementById('msg-overlay').classList.remove('show');
+    }
+
+    // 点击遮罩关闭
+    document.addEventListener('click', function (ev) {
+        const overlay = document.getElementById('msg-overlay');
+        if (overlay && overlay.classList.contains('show') && ev.target === overlay) {
+            closeMsgOverlay();
+        }
+    });
+
+    // ESC 关闭
+    document.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Escape') closeMsgOverlay();
+    });
+
+    // 滚动加载更多：滚动到接近底部时自动加载下一页
+    document.getElementById('msg-list').addEventListener('scroll', function () {
+        const el = this;
+        // 距离底部不足 60px 时触发
+        if (el.scrollTop + el.clientHeight >= el.scrollHeight - 60) {
+            loadMoreList();
+        }
+    });
+
+    // 初始化
+    renderPopover();
+    </script>
+</body>
+</html>
